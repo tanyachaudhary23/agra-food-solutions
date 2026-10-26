@@ -1,0 +1,40 @@
+"use client";
+import { useState } from "react";
+import { adminFetch } from "@/lib/admin";
+import { BusyLabel, Card, Field, Notice, PageTitle, useToast } from "@/components/admin/ui";
+
+export default function Account() {
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const toast = useToast();
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const f = new FormData(form);
+    setErr(""); setBusy(true);
+    if (f.get("newPassword") !== f.get("confirm")) { setBusy(false); return setErr("The new passwords do not match."); }
+    try {
+      await adminFetch("/password", { method: "POST", body: { currentPassword: f.get("currentPassword"), newPassword: f.get("newPassword") } });
+      toast.success("Password changed.");
+      form.reset();
+    } catch (x) { setErr((x as Error).message); } finally { setBusy(false); }
+  }
+
+  return (
+    <>
+      <PageTitle title="Account" />
+      <div className="max-w-md">
+        <Card title="Change password">
+          <form onSubmit={submit} className="space-y-5">
+            <Field label="Current password"><input name="currentPassword" type="password" autoComplete="current-password" required className="field" /></Field>
+            <Field label="New password" hint="At least 10 characters."><input name="newPassword" type="password" autoComplete="new-password" minLength={10} required className="field" /></Field>
+            <Field label="Repeat new password"><input name="confirm" type="password" autoComplete="new-password" minLength={10} required className="field" /></Field>
+            <Notice kind="error">{err}</Notice>
+            <button className="btn btn-forest" disabled={busy}><BusyLabel busy={busy} busyText="Changing…">Change password</BusyLabel></button>
+          </form>
+        </Card>
+      </div>
+    </>
+  );
+}

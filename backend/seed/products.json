@@ -1,0 +1,979 @@
+{
+  "categories": [
+    {
+      "slug": "plansifter-sieving-spares",
+      "name": "Plansifter & Sieving Spares",
+      "description": "Fabrics, balls, pads, frames, bags and cleaners for plansifters and sieving."
+    },
+    {
+      "slug": "rubber-parts-belts-buckets",
+      "name": "Rubber Parts, Belts & Buckets",
+      "description": "Rubber sleeves and caps, belts, belt fasteners, elevator buckets and oil seals."
+    },
+    {
+      "slug": "couplings-chains-sprockets",
+      "name": "Couplings, Chains & Sprockets",
+      "description": "Couplings, coupling rubbers, chains and sprockets for mill drives."
+    },
+    {
+      "slug": "pipes-fittings",
+      "name": "Pipes & Fittings",
+      "description": "Pipes, bends and fittings for grain and flour handling lines."
+    },
+    {
+      "slug": "magnets",
+      "name": "Magnets",
+      "description": "Magnetic grills, rotary, drawer, plate, hopper and online magnets."
+    },
+    {
+      "slug": "pulleys-bearings-roller-mill-parts",
+      "name": "Pulleys, Bearings & Roller Mill Parts",
+      "description": "Pulleys, bearings and roller mill gear sets, pulleys and brushes."
+    },
+    {
+      "slug": "screens-meshes",
+      "name": "Screens & Meshes",
+      "description": "Perforated screens and wire meshes in a range of hole shapes and weaves."
+    },
+    {
+      "slug": "mill-plant-accessories",
+      "name": "Other Mill & Plant Accessories",
+      "description": "Sheets, bags, filters, air locks, beaters and other plant accessories."
+    }
+  ],
+  "products": [
+    {
+      "id": "AFS-001",
+      "name": "Milling Fabric",
+      "slug": "milling-fabric",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/milling-fabric.jpg"
+    },
+    {
+      "id": "AFS-002",
+      "name": "Rubber Ball",
+      "slug": "rubber-ball",
+      "category": "plansifter-sieving-spares",
+      "specifications": [
+        {
+          "label": "Size range",
+          "value": "16 mm to 50 mm"
+        }
+      ],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/rubber-ball.jpg"
+    },
+    {
+      "id": "AFS-003",
+      "name": "Oval Ball",
+      "slug": "oval-ball",
+      "category": "plansifter-sieving-spares",
+      "specifications": [
+        {
+          "label": "Materials",
+          "value": "PVC, Rubber and Plastic"
+        }
+      ],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/oval-ball.jpg"
+    },
+    {
+      "id": "AFS-004",
+      "name": "Staple Gun & Staple Pin",
+      "slug": "staple-gun-and-staple-pin",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/staple-gun-and-staple-pin.jpg"
+    },
+    {
+      "id": "AFS-005",
+      "name": "Cotton Pad",
+      "slug": "cotton-pad",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/cotton-pad.jpg"
+    },
+    {
+      "id": "AFS-006",
+      "name": "Triangle with Brush, Plastic Knob, Studs and Metal Rivet",
+      "slug": "triangle-with-brush-plastic-knob-studs-and-metal-rivet",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/triangle-with-brush-plastic-knob-studs-and-metal-rivet.jpg"
+    },
+    {
+      "id": "AFS-007",
+      "name": "Felt Seal",
+      "slug": "felt-seal",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/felt-seal.jpg"
+    },
+    {
+      "id": "AFS-008",
+      "name": "PU Pad",
+      "slug": "pu-pad",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/pu-pad.jpg"
+    },
+    {
+      "id": "AFS-009",
+      "name": "Nova Sieve Cleaner",
+      "slug": "nova-sieve-cleaner",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/nova-sieve-cleaner.jpg"
+    },
+    {
+      "id": "AFS-010",
+      "name": "Plansifter Frame",
+      "slug": "plansifter-frame",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/plansifter-frame.jpg"
+    },
+    {
+      "id": "AFS-011",
+      "name": "Plan Sifter Rubber Ring",
+      "slug": "plan-sifter-rubber-ring",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/plan-sifter-rubber-ring.jpg"
+    },
+    {
+      "id": "AFS-012",
+      "name": "Big Triangle with Brush and Studs",
+      "slug": "big-triangle-with-brush-and-studs",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/big-triangle-with-brush-and-studs.jpg"
+    },
+    {
+      "id": "AFS-013",
+      "name": "Wire Rope",
+      "slug": "wire-rope",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/wire-rope.jpg"
+    },
+    {
+      "id": "AFS-014",
+      "name": "Plan Sifter Bags",
+      "slug": "plan-sifter-bags",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/plan-sifter-bags.jpg"
+    },
+    {
+      "id": "AFS-015",
+      "name": "Rubber Cube",
+      "slug": "rubber-cube",
+      "category": "plansifter-sieving-spares",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/rubber-cube.jpg"
+    },
+    {
+      "id": "AFS-016",
+      "name": "Vibration Pad (Damru)",
+      "slug": "vibration-pad-damru",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/vibration-pad-damru.jpg"
+    },
+    {
+      "id": "AFS-017",
+      "name": "De-Stoner Rubber Sleeve",
+      "slug": "de-stoner-rubber-sleeve",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/de-stoner-rubber-sleeve.jpg"
+    },
+    {
+      "id": "AFS-018",
+      "name": "Lift Glass Rubber Sleeve",
+      "slug": "lift-glass-rubber-sleeve",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/lift-glass-rubber-sleeve.jpg"
+    },
+    {
+      "id": "AFS-019",
+      "name": "Rubber Cap",
+      "slug": "rubber-cap",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/rubber-cap.jpg"
+    },
+    {
+      "id": "AFS-020",
+      "name": "Air Lock Rubber Sleeve",
+      "slug": "air-lock-rubber-sleeve",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/air-lock-rubber-sleeve.jpg"
+    },
+    {
+      "id": "AFS-021",
+      "name": "Rubber Cap with Lock",
+      "slug": "rubber-cap-with-lock",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/rubber-cap-with-lock.jpg"
+    },
+    {
+      "id": "AFS-022",
+      "name": "Transmission Belt",
+      "slug": "transmission-belt",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/transmission-belt.jpg"
+    },
+    {
+      "id": "AFS-023",
+      "name": "Rubber Belt White & Black",
+      "slug": "rubber-belt-white-and-black",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [
+        "White",
+        "Black"
+      ],
+      "featured": false,
+      "image": "/images/products/rubber-belt-white-and-black.jpg"
+    },
+    {
+      "id": "AFS-024",
+      "name": "V Belt",
+      "slug": "v-belt",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/v-belt.jpg"
+    },
+    {
+      "id": "AFS-025",
+      "name": "Cotton and Nylon Belt",
+      "slug": "cotton-and-nylon-belt",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [
+        {
+          "label": "Materials",
+          "value": "Cotton, Nylon"
+        }
+      ],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/cotton-and-nylon-belt.jpg"
+    },
+    {
+      "id": "AFS-026",
+      "name": "Bucket Bolt Belt Fastener",
+      "slug": "bucket-bolt-belt-fastener",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/bucket-bolt-belt-fastener.jpg"
+    },
+    {
+      "id": "AFS-027",
+      "name": "Black Rubber Belt",
+      "slug": "black-rubber-belt",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/black-rubber-belt.jpg"
+    },
+    {
+      "id": "AFS-028",
+      "name": "AA Type Bucket",
+      "slug": "aa-type-bucket",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [
+        {
+          "label": "Materials",
+          "value": "MS, SS, PP, Nylon"
+        }
+      ],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/aa-type-bucket.jpg"
+    },
+    {
+      "id": "AFS-029",
+      "name": "Shovel Type Bucket",
+      "slug": "shovel-type-bucket",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [
+        {
+          "label": "Materials",
+          "value": "MS, SS, PP, Nylon"
+        }
+      ],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/shovel-type-bucket.jpg"
+    },
+    {
+      "id": "AFS-030",
+      "name": "Oil Seal",
+      "slug": "oil-seal",
+      "category": "rubber-parts-belts-buckets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/oil-seal.jpg"
+    },
+    {
+      "id": "AFS-031",
+      "name": "Star Coupling",
+      "slug": "star-coupling",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/star-coupling.jpg"
+    },
+    {
+      "id": "AFS-032",
+      "name": "HRC Coupling",
+      "slug": "hrc-coupling",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/hrc-coupling.jpg"
+    },
+    {
+      "id": "AFS-033",
+      "name": "Simplex Chain Sprocket",
+      "slug": "simplex-chain-sprocket",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/simplex-chain-sprocket.jpg"
+    },
+    {
+      "id": "AFS-034",
+      "name": "Simplex Chain",
+      "slug": "simplex-chain",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/simplex-chain.jpg"
+    },
+    {
+      "id": "AFS-035",
+      "name": "Muff Coupling",
+      "slug": "muff-coupling",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/muff-coupling.jpg"
+    },
+    {
+      "id": "AFS-036",
+      "name": "Chain Coupling",
+      "slug": "chain-coupling",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/chain-coupling.jpg"
+    },
+    {
+      "id": "AFS-037",
+      "name": "Duplex Chain",
+      "slug": "duplex-chain",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/duplex-chain.jpg"
+    },
+    {
+      "id": "AFS-038",
+      "name": "Coupling Rubber",
+      "slug": "coupling-rubber",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/coupling-rubber.jpg"
+    },
+    {
+      "id": "AFS-039",
+      "name": "Tyre Coupling",
+      "slug": "tyre-coupling",
+      "category": "couplings-chains-sprockets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/tyre-coupling.jpg"
+    },
+    {
+      "id": "AFS-040",
+      "name": "Kali",
+      "slug": "kali",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/kali.jpg"
+    },
+    {
+      "id": "AFS-041",
+      "name": "Y Fitting",
+      "slug": "y-fitting",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/y-fitting.jpg"
+    },
+    {
+      "id": "AFS-042",
+      "name": "Pipes",
+      "slug": "pipes",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/pipes.jpg"
+    },
+    {
+      "id": "AFS-043",
+      "name": "Long & Short Bend",
+      "slug": "long-and-short-bend",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/long-and-short-bend.jpg"
+    },
+    {
+      "id": "AFS-044",
+      "name": "Divider",
+      "slug": "divider",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/divider.jpg"
+    },
+    {
+      "id": "AFS-045",
+      "name": "Lock Ring",
+      "slug": "lock-ring",
+      "category": "pipes-fittings",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/lock-ring.jpg"
+    },
+    {
+      "id": "AFS-046",
+      "name": "Magnetic Grill",
+      "slug": "magnetic-grill",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/magnetic-grill.jpg"
+    },
+    {
+      "id": "AFS-047",
+      "name": "Rotary Magnet",
+      "slug": "rotary-magnet",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/rotary-magnet.jpg"
+    },
+    {
+      "id": "AFS-048",
+      "name": "Grill Magnet",
+      "slug": "grill-magnet",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/grill-magnet.jpg"
+    },
+    {
+      "id": "AFS-049",
+      "name": "Online Magnet",
+      "slug": "online-magnet",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/online-magnet.jpg"
+    },
+    {
+      "id": "AFS-050",
+      "name": "Drawer Magnet & Plate Magnet",
+      "slug": "drawer-magnet-and-plate-magnet",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/drawer-magnet-and-plate-magnet.jpg"
+    },
+    {
+      "id": "AFS-051",
+      "name": "Hopper Magnet",
+      "slug": "hopper-magnet",
+      "category": "magnets",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/hopper-magnet.jpg"
+    },
+    {
+      "id": "AFS-052",
+      "name": "Flat & V Belt Pulley",
+      "slug": "flat-and-v-belt-pulley",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/flat-and-v-belt-pulley.jpg"
+    },
+    {
+      "id": "AFS-053",
+      "name": "Taper Bush V Belt Pulley",
+      "slug": "taper-bush-v-belt-pulley",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/taper-bush-v-belt-pulley.jpg"
+    },
+    {
+      "id": "AFS-054",
+      "name": "Timing Pulley and Plain Bore V Belt Pulley",
+      "slug": "timing-pulley-and-plain-bore-v-belt-pulley",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/timing-pulley-and-plain-bore-v-belt-pulley.jpg"
+    },
+    {
+      "id": "AFS-055",
+      "name": "Bearing",
+      "slug": "bearing",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/bearing.jpg"
+    },
+    {
+      "id": "AFS-056",
+      "name": "Bearing Sleeve",
+      "slug": "bearing-sleeve",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/bearing-sleeve.jpg"
+    },
+    {
+      "id": "AFS-057",
+      "name": "Bearing Block",
+      "slug": "bearing-block",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/bearing-block.jpg"
+    },
+    {
+      "id": "AFS-058",
+      "name": "Roller Mill Gear Set",
+      "slug": "roller-mill-gear-set",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/roller-mill-gear-set.jpg"
+    },
+    {
+      "id": "AFS-059",
+      "name": "Roller Mill Pulley",
+      "slug": "roller-mill-pulley",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/roller-mill-pulley.jpg"
+    },
+    {
+      "id": "AFS-060",
+      "name": "Roller Mill Brush",
+      "slug": "roller-mill-brush",
+      "category": "pulleys-bearings-roller-mill-parts",
+      "specifications": [
+        {
+          "label": "Materials",
+          "value": "Nylon, Coconut"
+        }
+      ],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/roller-mill-brush.jpg"
+    },
+    {
+      "id": "AFS-061",
+      "name": "Round Hole",
+      "slug": "round-hole",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/round-hole.jpg"
+    },
+    {
+      "id": "AFS-062",
+      "name": "Long Hole",
+      "slug": "long-hole",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/long-hole.jpg"
+    },
+    {
+      "id": "AFS-063",
+      "name": "Hexagonal Hole",
+      "slug": "hexagonal-hole",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/hexagonal-hole.jpg"
+    },
+    {
+      "id": "AFS-064",
+      "name": "Triangle Hole",
+      "slug": "triangle-hole",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/triangle-hole.jpg"
+    },
+    {
+      "id": "AFS-065",
+      "name": "Double Crimped Wire Mesh",
+      "slug": "double-crimped-wire-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/double-crimped-wire-mesh.jpg"
+    },
+    {
+      "id": "AFS-066",
+      "name": "Lip Shape",
+      "slug": "lip-shape",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/lip-shape.jpg"
+    },
+    {
+      "id": "AFS-067",
+      "name": "De Stoner Mesh",
+      "slug": "de-stoner-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/de-stoner-mesh.jpg"
+    },
+    {
+      "id": "AFS-068",
+      "name": "Dimple Shape",
+      "slug": "dimple-shape",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/dimple-shape.jpg"
+    },
+    {
+      "id": "AFS-069",
+      "name": "Pointed and Round Wire Scourer Mesh",
+      "slug": "pointed-and-round-wire-scourer-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/pointed-and-round-wire-scourer-mesh.jpg"
+    },
+    {
+      "id": "AFS-070",
+      "name": "Mat Type Scourer Mesh",
+      "slug": "mat-type-scourer-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/mat-type-scourer-mesh.jpg"
+    },
+    {
+      "id": "AFS-071",
+      "name": "Flat & Round Wire Scourer Mesh",
+      "slug": "flat-and-round-wire-scourer-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/flat-and-round-wire-scourer-mesh.jpg"
+    },
+    {
+      "id": "AFS-072",
+      "name": "Stainless Steel Wire Mesh",
+      "slug": "stainless-steel-wire-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/stainless-steel-wire-mesh.jpg"
+    },
+    {
+      "id": "AFS-073",
+      "name": "Round Wire Scourer Mesh",
+      "slug": "round-wire-scourer-mesh",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/round-wire-scourer-mesh.jpg"
+    },
+    {
+      "id": "AFS-074",
+      "name": "Indented Screen",
+      "slug": "indented-screen",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/indented-screen.jpg"
+    },
+    {
+      "id": "AFS-075",
+      "name": "Washer Whizzer Screen",
+      "slug": "washer-whizzer-screen",
+      "category": "screens-meshes",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/washer-whizzer-screen.jpg"
+    },
+    {
+      "id": "AFS-076",
+      "name": "Namda Sheet",
+      "slug": "namda-sheet",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/namda-sheet.jpg"
+    },
+    {
+      "id": "AFS-077",
+      "name": "De Stoner Rexine Bag",
+      "slug": "de-stoner-rexine-bag",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/de-stoner-rexine-bag.jpg"
+    },
+    {
+      "id": "AFS-078",
+      "name": "Air Lock & Lift Glass",
+      "slug": "air-lock-and-lift-glass",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/air-lock-and-lift-glass.jpg"
+    },
+    {
+      "id": "AFS-079",
+      "name": "Acrylic Tube",
+      "slug": "acrylic-tube",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/acrylic-tube.jpg"
+    },
+    {
+      "id": "AFS-080",
+      "name": "Paper Gum Tape",
+      "slug": "paper-gum-tape",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/paper-gum-tape.jpg"
+    },
+    {
+      "id": "AFS-081",
+      "name": "Nylon Rod",
+      "slug": "nylon-rod",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/nylon-rod.jpg"
+    },
+    {
+      "id": "AFS-082",
+      "name": "Chakki Stone",
+      "slug": "chakki-stone",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/chakki-stone.jpg"
+    },
+    {
+      "id": "AFS-083",
+      "name": "Anti Vibration Mount",
+      "slug": "anti-vibration-mount",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/anti-vibration-mount.jpg"
+    },
+    {
+      "id": "AFS-084",
+      "name": "Worm Blade",
+      "slug": "worm-blade",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/worm-blade.jpg"
+    },
+    {
+      "id": "AFS-085",
+      "name": "Filter Cloth",
+      "slug": "filter-cloth",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/filter-cloth.jpg"
+    },
+    {
+      "id": "AFS-086",
+      "name": "Worm Hanger",
+      "slug": "worm-hanger",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/worm-hanger.jpg"
+    },
+    {
+      "id": "AFS-087",
+      "name": "Air Lock",
+      "slug": "air-lock",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/air-lock.jpg"
+    },
+    {
+      "id": "AFS-088",
+      "name": "Hammer Mill Beaters",
+      "slug": "hammer-mill-beaters",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/hammer-mill-beaters.jpg"
+    },
+    {
+      "id": "AFS-089",
+      "name": "Jet Filter Cage & Venturi",
+      "slug": "jet-filter-cage-and-venturi",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": false,
+      "image": "/images/products/jet-filter-cage-and-venturi.jpg"
+    },
+    {
+      "id": "AFS-090",
+      "name": "Jet Filter Bag",
+      "slug": "jet-filter-bag",
+      "category": "mill-plant-accessories",
+      "specifications": [],
+      "variants": [],
+      "featured": true,
+      "image": "/images/products/jet-filter-bag.jpg"
+    }
+  ]
+}

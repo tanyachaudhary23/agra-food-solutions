@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: "Manrope Variable";
+  --font-body: "Inter Variable";
+  --font-serif: "Newsreader Variable";
+}
+
+@layer base {
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body { overflow-x: clip; @apply bg-ivory font-sans text-charcoal antialiased; line-height: 1.65; }
+  h1, h2, h3, h4 { @apply font-heading text-forest; line-height: 1.12; letter-spacing: -0.02em; }
+  :focus-visible { outline: 2px solid #8F7240; outline-offset: 3px; }
+  ::selection { background: #C5A36B; color: #172B29; }
+}
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12; }
+  .eyebrow { @apply font-heading text-xs font-semibold uppercase tracking-eyebrow text-brass-700; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-heading text-sm font-semibold transition-colors duration-200 disabled:opacity-60; }
+  .btn-brass { @apply bg-brass text-forest hover:bg-ivory; }
+  .btn-forest { @apply bg-forest text-ivory hover:bg-forest-700; }
+  .btn-outline { @apply border border-forest text-forest hover:bg-forest hover:text-ivory; }
+  .btn-outline-light { @apply border border-ivory/60 text-ivory hover:bg-ivory hover:text-forest; }
+  .field { @apply w-full border border-forest/30 bg-white px-3 py-2.5 text-sm text-charcoal placeholder:text-charcoal/50 focus:border-forest; }
+  .label { @apply mb-1.5 block font-heading text-xs font-semibold uppercase tracking-wider text-forest; }
+}
+
+/* Reveal-on-scroll: panels animate in every time they enter the screen; fully visible when JS or motion is unavailable */
+.reveal { opacity: 1; transform: none; }
+.js .reveal, .js .reveal-left, .js .reveal-right, .js .reveal-zoom {
+  opacity: 0;
+  transition: opacity .8s cubic-bezier(.2, .7, .2, 1), transform .8s cubic-bezier(.2, .7, .2, 1);
+  will-change: opacity, transform;
+}
+.js .reveal { transform: translate3d(0, 28px, 0); }
+.js .reveal-left { transform: translate3d(-44px, 0, 0); }
+.js .reveal-right { transform: translate3d(44px, 0, 0); }
+.js .reveal-zoom { transform: scale(.95); }
+.js .is-visible { opacity: 1; transform: none; transition-delay: var(--d, 0s); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal, .js .reveal-left, .js .reveal-right, .js .reveal-zoom { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---- Admin panel: gentle motion and loading states ---- */
+@keyframes admin-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes admin-pop { from { opacity: 0; transform: translateY(-8px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes admin-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes admin-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.admin-enter { animation: admin-enter .28s ease-out both; }
+.admin-pop { animation: admin-pop .22s ease-out both; }
+.admin-fade { animation: admin-fade .18s ease-out both; }
+.skeleton {
+  background: linear-gradient(90deg, rgba(23,43,41,.07) 25%, rgba(23,43,41,.14) 40%, rgba(23,43,41,.07) 65%);
+  background-size: 400% 100%;
+  animation: admin-shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-enter, .admin-pop, .admin-fade { animation: none; }
+  .skeleton { animation: none; }
+}
