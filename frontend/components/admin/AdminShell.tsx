@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { tokenStore } from "@/lib/admin";
+import { adminFetch, tokenStore } from "@/lib/admin";
 import { FeedbackProvider } from "@/components/admin/ui";
 
 const links = [
@@ -35,6 +35,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }, [confirming]);
 
   function signOut() {
+    // Revokes the session on the server too (best effort), then clears it here.
+    adminFetch("/logout", { method: "POST" }).catch(() => {});
     tokenStore.clear();
     router.replace("/admin/login?signedout=1");
   }

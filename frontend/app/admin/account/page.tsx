@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { adminFetch } from "@/lib/admin";
+import { adminFetch, tokenStore } from "@/lib/admin";
 import { BusyLabel, Card, Field, Notice, PageTitle, useToast } from "@/components/admin/ui";
 
 export default function Account() {
@@ -15,8 +15,9 @@ export default function Account() {
     setErr(""); setBusy(true);
     if (f.get("newPassword") !== f.get("confirm")) { setBusy(false); return setErr("The new passwords do not match."); }
     try {
-      await adminFetch("/password", { method: "POST", body: { currentPassword: f.get("currentPassword"), newPassword: f.get("newPassword") } });
-      toast.success("Password changed.");
+      const r = await adminFetch<{ token?: string }>("/password", { method: "POST", body: { currentPassword: f.get("currentPassword"), newPassword: f.get("newPassword") } });
+      if (r.token) tokenStore.set(r.token);
+      toast.success("Password changed. Other devices were signed out.");
       form.reset();
     } catch (x) { setErr((x as Error).message); } finally { setBusy(false); }
   }

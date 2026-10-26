@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import ProductCard from "./ProductCard";
@@ -23,6 +23,10 @@ export default function Catalogue({ products, categories }: { products: Product[
       return term.split(/\s+/).every((t) => hay.includes(t));
     });
   }, [products, categories, active, activeIndustry, q]);
+
+  const PAGE = 24;
+  const [shown, setShown] = useState(PAGE);
+  useEffect(() => setShown(PAGE), [active, activeIndustry, q]);
 
   const setParam = (key: "category" | "industry", slug: string) => {
     const next = new URLSearchParams(params.toString());
@@ -83,7 +87,13 @@ export default function Catalogue({ products, categories }: { products: Product[
         </div>
       ) : (
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} />)}
+          {results.slice(0, shown).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} />)}
+        </div>
+      )}
+      {results.length > shown && (
+        <div className="mt-10 text-center">
+          <p className="text-sm text-charcoal/65">Showing {shown} of {results.length} products</p>
+          <button className="btn btn-outline mt-3" onClick={() => setShown(shown + PAGE)}>Show more products</button>
         </div>
       )}
     </div>

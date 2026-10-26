@@ -65,9 +65,22 @@ check "cors allows website" "$(code -H 'Origin: http://localhost:3000' $API/api/
 TMPPW="Temporary-pass-$RANDOM-x"
 check "wrong current password rejected" "$(code -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d '{"currentPassword":"wrong","newPassword":"abcdefghijkl"}')" 400
 check "too-short new password rejected" "$(code -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$ADMIN_PASSWORD\",\"newPassword\":\"short\"}")" 400
-check "password change" "$(code -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$ADMIN_PASSWORD\",\"newPassword\":\"$TMPPW\"}")" 200
+PWRES=$(curl -s -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$ADMIN_PASSWORD\",\"newPassword\":\"$TMPPW\"}")
+check "password change returns a fresh token" "$(echo "$PWRES" | json "'ok' if d.get('token') else 'no'")" ok
+check "old session is revoked after password change" "$(code $API/api/admin/stats -H "$H")" 401
+NEWTOKEN=$(echo "$PWRES" | json "d['token']"); H="Authorization: Bearer $NEWTOKEN"
+check "fresh session works" "$(code $API/api/admin/stats -H "$H")" 200
 check "old password no longer works" "$(code -X POST $API/api/admin/login -H 'Content-Type: application/json' -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}")" 401
 check "new password works" "$(code -X POST $API/api/admin/login -H 'Content-Type: application/json' -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$TMPPW\"}")" 200
-check "password restored" "$(code -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$TMPPW\",\"newPassword\":\"$ADMIN_PASSWORD\"}")" 200
+RESTORE=$(curl -s -X POST $API/api/admin/password -H "$H" -H 'Content-Type: application/json' -d "{\"currentPassword\":\"$TMPPW\",\"newPassword\":\"$ADMIN_PASSWORD\"}")
+check "password restored" "$(echo "$RESTORE" | json "'ok' if d.get('ok') else 'no'")" ok
+H="Authorization: Bearer $(echo "$RESTORE" | json "d['token']")"
+
+# email retry and logout revocation
+EID=$(curl -s "$API/api/admin/enquiries" -H "$H" | json "d['items'][0]['id'] if d['items'] else 0")
+if [ "$EID" != "0" ]; then check "resend email endpoint answers" "$(code -X POST $API/api/admin/enquiries/$EID/resend-email -H "$H")" 200; fi
+check "resend on missing enquiry is 404" "$(code -X POST $API/api/admin/enquiries/999999/resend-email -H "$H")" 404
+check "logout" "$(code -X POST $API/api/admin/logout -H "$H")" 200
+check "token is dead after logout" "$(code $API/api/admin/stats -H "$H")" 401
 
 echo; echo "passed: $pass  failed: $fail"; [ $fail -eq 0 ]

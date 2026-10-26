@@ -130,6 +130,8 @@ export default function ProductEditor() {
                 <input className="field mt-2" aria-label="Photo description (alt text)" placeholder="Describe the photo" value={im.alt} onChange={(e) => set("images", f.images.map((x, j) => (j === i ? { ...x, alt: e.target.value } : x)))} />
                 <div className="mt-2 flex gap-3 text-sm font-semibold">
                   {i > 0 && <button type="button" className="text-forest underline" onClick={() => set("images", [im, ...f.images.filter((_, j) => j !== i)])}>Make main</button>}
+                  {i > 0 && <button type="button" className="text-forest underline" aria-label="Move photo earlier" onClick={() => set("images", f.images.map((x, j) => (j === i - 1 ? im : j === i ? f.images[i - 1] : x)))}>← Move</button>}
+                  {i < f.images.length - 1 && <button type="button" className="text-forest underline" aria-label="Move photo later" onClick={() => set("images", f.images.map((x, j) => (j === i + 1 ? im : j === i ? f.images[i + 1] : x)))}>Move →</button>}
                   <button type="button" className="text-red-800 underline" onClick={() => set("images", f.images.filter((_, j) => j !== i))}>Remove</button>
                 </div>
               </li>

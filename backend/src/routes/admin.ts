@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import fs from "node:fs";
 import { z } from "zod";
 import { db, slugify, uniqueSlug } from "../db.js";
+import { sendEnquiryEmail, type EnquiryForMail } from "../mail.js";
 import { requireAdmin, signToken, type AdminRow } from "../auth.js";
 import { createProduct, getProductById, listProducts, productSchema, updateProduct } from "../products.js";
 import { getSettings, saveSettings, settingsSchema } from "../settings.js";
@@ -23,7 +24,7 @@ const loginLimiter = rateLimit({
 
 adminRouter.post("/login", loginLimiter, (req, res) => {
   const { email, password } = (req.body || {}) as { email?: string; password?: string };
-  const admin = db.prepare("SELECT id, email, password_hash FROM admins WHERE email = ?").get(String(email || "").trim().toLowerCase()) as AdminRow | undefined;
+  const admin = db.prepare("SELECT id, email, password_hash, token_version FROM admins WHERE email = ?").get(String(email || "").trim().toLowerCase()) as AdminRow | undefined;
   // Compare against a dummy hash when the user is unknown so response time does not reveal valid emails.
   const hash = admin?.password_hash ?? "$2a$12$C6UzMDM.H6dfI/f/IKcEeO5hP5v1l0F3bYb0kQb3QJ9m2yq0m8W5S";
   const ok = bcrypt.compareSync(String(password || ""), hash);
@@ -40,7 +41,14 @@ adminRouter.post("/password", loginLimiter, (req, res) => {
   const admin = res.locals.admin as AdminRow;
   if (!bcrypt.compareSync(String(currentPassword || ""), admin.password_hash)) return void res.status(400).json({ error: "Current password is incorrect." });
   if (String(newPassword || "").length < 10) return void res.status(400).json({ error: "New password must be at least 10 characters." });
-  db.prepare("UPDATE admins SET password_hash = ? WHERE id = ?").run(bcrypt.hashSync(String(newPassword), 12), admin.id);
+  // Raising token_version signs out every other session; this one continues with a fresh token.
+  db.prepare("UPDATE admins SET password_hash = ?, token_version = token_version + 1 WHERE id = ?").run(bcrypt.hashSync(String(newPassword), 12), admin.id);
+  const fresh = db.prepare("SELECT id, email, password_hash, token_version FROM admins WHERE id = ?").get(admin.id) as AdminRow;
+  res.json({ ok: true, token: signToken(fresh) });
+});
+
+adminRouter.post("/logout", (_req, res) => {
+  db.prepare("UPDATE admins SET token_version = token_version + 1 WHERE id = ?").run((res.locals.admin as AdminRow).id);
   res.json({ ok: true });
 });
 
@@ -220,6 +228,14 @@ adminRouter.patch("/enquiries/:id", (req, res) => {
   if (p.data.status) db.prepare("UPDATE enquiries SET status = ? WHERE id = ?").run(p.data.status, id);
   if (p.data.notes !== undefined) db.prepare("UPDATE enquiries SET notes = ? WHERE id = ?").run(p.data.notes, id);
   res.json({ ok: true });
+});
+
+adminRouter.post("/enquiries/:id/resend-email", async (req, res) => {
+  const row = db.prepare("SELECT * FROM enquiries WHERE id = ?").get(Number(req.params.id)) as (EnquiryForMail & { id: number }) | undefined;
+  if (!row) return void res.status(404).json({ error: "Enquiry not found" });
+  const mail = await sendEnquiryEmail(row);
+  db.prepare("UPDATE enquiries SET email_status = ?, email_error = ? WHERE id = ?").run(mail.status, mail.error ?? "", row.id);
+  res.json({ ok: mail.status === "sent", emailStatus: mail.status, emailError: mail.error ?? "" });
 });
 
 adminRouter.delete("/enquiries/:id", (req, res) => {

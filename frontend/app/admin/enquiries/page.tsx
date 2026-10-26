@@ -27,6 +27,14 @@ export default function Enquiries() {
     adminFetch<List>(`/enquiries?${p}`).then(setData).catch((e) => setErr(e.message));
   }, [page, status, q]);
 
+  async function resend(id: number) {
+    try {
+      const r = await adminFetch<{ ok: boolean; emailStatus: string; emailError: string }>(`/enquiries/${id}/resend-email`, { method: "POST" });
+      if (r.ok) toast.success("Notification email sent."); else toast.error(r.emailStatus === "not_configured" ? "Email is not set up on the server yet." : `Email failed: ${r.emailError || "unknown error"}`);
+      load();
+    } catch (x) { toast.error((x as Error).message); }
+  }
+
   useEffect(() => {
     const s = new URLSearchParams(window.location.search).get("status");
     if (s) setStatus(s);
@@ -92,6 +100,9 @@ export default function Enquiries() {
                       </label>
                     </div>
                     <div className="flex flex-wrap gap-3">
+                      {e.emailStatus !== "sent" && (
+                        <button className="btn btn-outline py-2" onClick={() => resend(e.id)}>Retry notification email</button>
+                      )}
                       <a className="btn btn-forest py-2" href={`mailto:${e.email}?subject=${encodeURIComponent(`Re: your enquiry${e.product ? ` about ${e.product}` : ""}`)}`}>Reply by email</a>
                       <button className="btn btn-outline py-2 !border-red-800 !text-red-800 hover:!bg-red-800 hover:!text-white" onClick={() => remove(e.id)}>Delete</button>
                     </div>

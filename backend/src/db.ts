@@ -90,6 +90,11 @@ if (!(db.prepare("PRAGMA table_info(products)").all() as { name: string }[]).som
   tagDefaultIndustries();
 }
 
+// Admin sessions can be revoked: logging out or changing the password raises token_version, which invalidates older tokens.
+if (!(db.prepare("PRAGMA table_info(admins)").all() as { name: string }[]).some((c) => c.name === "token_version")) {
+  db.exec("ALTER TABLE admins ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0");
+}
+
 export const slugify = (s: string) =>
   s
     .toLowerCase()
