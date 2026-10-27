@@ -24,6 +24,10 @@ export default function Catalogue({ products, categories }: { products: Product[
     });
   }, [products, categories, active, activeIndustry, q]);
 
+  // Keep the box in step when a search is started from the header while already on this page.
+  const urlQ = params.get("q") || "";
+  useEffect(() => setQ(urlQ), [urlQ]);
+
   const PAGE = 24;
   const [shown, setShown] = useState(PAGE);
   useEffect(() => setShown(PAGE), [active, activeIndustry, q]);
