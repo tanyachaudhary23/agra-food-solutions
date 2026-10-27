@@ -70,7 +70,7 @@ export default function Enquiries() {
             {data.items.map((e) => (
               <li key={e.id}>
                 <button onClick={() => setOpen(open === e.id ? null : e.id)} aria-expanded={open === e.id} className="flex w-full flex-wrap items-center justify-between gap-2 p-4 text-left text-sm transition-colors hover:bg-ivory">
-                  <span><strong>#{e.number ?? e.id} {e.name}</strong>, {e.company} ({e.country}){e.product ? ` · ${e.product}` : ""}</span>
+                  <span><strong>#{e.number ?? e.id} {e.name}</strong>, {e.company} ({e.country}){e.product ? ` · ${e.product.length > 70 ? e.product.slice(0, 67) + "…" : e.product}` : ""}</span>
                   <span className="flex items-center gap-3 text-charcoal/60">
                     {e.emailStatus !== "sent" && <span className="text-red-800" title={e.emailError || "Email not sent"}>email {e.emailStatus === "not_configured" ? "not set up" : e.emailStatus}</span>}
                     {new Date(e.createdAt + "Z").toLocaleString()}
@@ -81,7 +81,7 @@ export default function Enquiries() {
                   <div className="admin-fade space-y-4 border-t border-forest/10 bg-ivory p-5 text-sm">
                     <dl className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
                       {([["Email", e.email], ["Phone", e.phone], ["Product / part", e.product], ["Quantity", e.quantity]] as const).map(([k, v]) => v ? (
-                        <div key={k}><dt className="label !mb-0">{k}</dt><dd>{k === "Email" ? <a className="underline" href={`mailto:${v}`}>{v}</a> : v}</dd></div>
+                        <div key={k}><dt className="label !mb-0">{k}</dt><dd className="whitespace-pre-line break-words">{k === "Email" ? <a className="underline" href={`mailto:${v}`}>{v}</a> : v}</dd></div>
                       ) : null)}
                     </dl>
                     {e.requirements && <div><p className="label">Technical requirements</p><p className="whitespace-pre-wrap">{e.requirements}</p></div>}

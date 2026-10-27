@@ -1,9 +1,10 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Turnstile, { type TurnstileHandle } from "@/components/Turnstile";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { enquirySchema, validateFile, type FieldErrors } from "@/lib/enquiry";
 import { API_URL } from "@/lib/api";
+import { useQuoteList } from "@/components/QuoteList";
 
 type Props = { products: { slug: string; name: string }[]; initialProduct?: string; initialMessage?: string };
 const TURNSTILE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -13,11 +14,21 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const captcha = useRef<TurnstileHandle>(null);
+  const list = useQuoteList();
+
+  // "Request a Quote" on a product opens this form with that product in the quote list (once), so single and multi-product enquiries work the same way.
+  const preselect = products.find((p) => p.slug === initialProduct);
+  const added = useRef(false);
+  useEffect(() => {
+    if (preselect && !added.current) { added.current = true; list.add({ slug: preselect.slug, name: preselect.name }, { silent: true }); }
+  }, [preselect, list]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    // With a quote list, the product line is built from it (name and wanted quantity per product).
+    if (list.items.length) data.set("product", list.items.map((i, n) => `${n + 1}. ${i.name}${i.qty.trim() ? ` - ${i.qty.trim()}` : ""}`).join("\n"));
 
     // Client-side validation (the server validates again)
     const raw = Object.fromEntries(
@@ -40,7 +51,7 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
       const res = await fetch(`${API_URL}/api/enquiries`, { method: "POST", body: data });
       const json = await res.json().catch(() => ({}));
       captcha.current?.reset();
-      if (res.ok && json.ok) { setStatus("success"); form.reset(); return; }
+      if (res.ok && json.ok) { setStatus("success"); form.reset(); list.clear(); return; }
       setErrors(json.errors || { form: "Something went wrong. Please try again." });
       setStatus("error");
     } catch {
@@ -73,13 +84,34 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
       <div><label className="label" htmlFor="email">Business email *</label><input id="email" name="email" type="email" autoComplete="email" required className="field" {...f("email")} /><Err k="email" /></div>
       <div><label className="label" htmlFor="country">Country *</label><input id="country" name="country" autoComplete="country-name" required className="field" {...f("country")} /><Err k="country" /></div>
       <div><label className="label" htmlFor="phone">Phone (with country code) *</label><input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="+44 20 1234 5678" required className="field" {...f("phone")} /><Err k="phone" /></div>
-      <div><label className="label" htmlFor="quantity">Quantity</label><input id="quantity" name="quantity" className="field" {...f("quantity")} /></div>
+      {list.items.length === 0 && <div><label className="label" htmlFor="quantity">Quantity</label><input id="quantity" name="quantity" className="field" {...f("quantity")} /></div>}
 
-      <div className="sm:col-span-2">
-        <label className="label" htmlFor="product">Product or machinery of interest</label>
-        <input id="product" name="product" list="product-list" defaultValue={preselected} placeholder="Select or type a product" className="field" />
-        <datalist id="product-list">{products.map((p) => <option key={p.slug} value={p.name} />)}</datalist>
-      </div>
+      {list.items.length > 0 ? (
+        <div className="sm:col-span-2 border border-forest/20 bg-white p-4" aria-labelledby="quote-list-title">
+          <div className="flex items-center justify-between gap-3">
+            <h3 id="quote-list-title" className="font-heading text-sm font-semibold uppercase tracking-wider text-forest">Your quote list ({list.items.length})</h3>
+            <button type="button" onClick={list.clear} className="text-sm font-semibold text-forest underline hover:text-brass-700">Clear list</button>
+          </div>
+          <ul className="mt-3 divide-y divide-forest/10">
+            {list.items.map((i) => (
+              <li key={i.slug} className="flex flex-wrap items-center gap-3 py-2.5">
+                <span className="min-w-0 flex-1 text-sm font-medium">{i.name}</span>
+                <label className="sr-only" htmlFor={`qty-${i.slug}`}>Quantity for {i.name}</label>
+                <input id={`qty-${i.slug}`} value={i.qty} onChange={(e) => list.setQty(i.slug, e.target.value)} placeholder="Quantity, e.g. 50 pcs" maxLength={30} className="field !w-44 !py-1.5" />
+                <button type="button" onClick={() => list.remove(i.slug)} className="text-sm font-semibold text-red-800 underline" aria-label={`Remove ${i.name} from the list`}>Remove</button>
+              </li>
+            ))}
+          </ul>
+          <a href="/products" className="mt-3 inline-block text-sm font-semibold text-forest underline hover:text-brass-700">Add more products</a>
+        </div>
+      ) : (
+        <div className="sm:col-span-2">
+          <label className="label" htmlFor="product">Product or machinery of interest</label>
+          <input id="product" name="product" list="product-list" defaultValue={preselected} placeholder="Select or type a product" className="field" />
+          <datalist id="product-list">{products.map((p) => <option key={p.slug} value={p.name} />)}</datalist>
+          <p className="mt-1 text-xs text-charcoal/60">Tip: use &ldquo;Add to quote list&rdquo; on the Products page to quote several products in one enquiry.</p>
+        </div>
+      )}
 
       <div className="sm:col-span-2"><label className="label" htmlFor="requirements">Technical requirements</label><textarea id="requirements" name="requirements" rows={3} className="field" placeholder="Dimensions, materials, standards, model numbers…" /></div>
       <div className="sm:col-span-2"><label className="label" htmlFor="message">Message *</label><textarea id="message" name="message" rows={5} required defaultValue={initialMessage} className="field" {...f("message")} /><Err k="message" /></div>

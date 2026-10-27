@@ -7,6 +7,7 @@ import { Unavailable } from "@/components/PageHero";
 import ProductCard from "@/components/ProductCard";
 import { getAllProducts, getProduct, getRelatedProducts } from "@/lib/products";
 import { getSettings, site, whatsappLink } from "@/lib/site";
+import { AddToQuoteButton } from "@/components/QuoteList";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -72,6 +73,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             {p.fullDescription && <p className="mt-6 whitespace-pre-line text-lg text-charcoal/80">{p.fullDescription}</p>}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={quoteHref} className="btn btn-forest">Request a Quote</Link>
+              <AddToQuoteButton product={{ slug: p.slug, name: p.name }} className="btn btn-outline" />
               {wa && <a href={wa} className="btn btn-outline" target="_blank" rel="noopener noreferrer">WhatsApp</a>}
               {s.email && <a href={`mailto:${s.email}?subject=${encodeURIComponent(`Enquiry: ${p.name}`)}`} className="btn btn-outline">Email us</a>}
             </div>

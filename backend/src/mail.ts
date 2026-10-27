@@ -43,7 +43,7 @@ export async function sendEnquiryEmail(e: EnquiryForMail): Promise<{ status: "se
       from: config.smtp.from,
       to,
       replyTo: e.email,
-      subject: oneLine(`New enquiry #${e.id}: ${e.product || "General"} (${e.company}, ${e.country})`),
+      subject: oneLine(`New enquiry #${e.id}: ${e.product ? (e.product.length > 60 ? e.product.slice(0, 57) + "..." : e.product) : "General"} (${e.company}, ${e.country})`),
       text: rows.map(([k, v]) => `${k}: ${v}`).join("\n"),
       html: `<table cellpadding="6" style="font-family:sans-serif">${rows.map(([k, v]) => `<tr><td><b>${k}</b></td><td>${esc(v).replace(/\n/g, "<br>")}</td></tr>`).join("")}</table>`,
       attachments: e.attachment_file && e.attachment_name

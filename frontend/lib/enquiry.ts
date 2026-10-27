@@ -16,7 +16,7 @@ export const enquirySchema = z.object({
   email: clean(150).pipe(z.email("Please enter a valid email address")),
   country: clean(80).pipe(z.string().min(2, "Please enter your country")),
   phone: clean(30).pipe(z.string().regex(/^\+?[0-9\s\-()]{7,20}$/, "Enter a phone number with country code, e.g. +44 20 1234 5678")),
-  product: clean(150),
+  product: clean(2000),
   quantity: clean(60),
   requirements: clean(2000),
   message: clean(3000).pipe(z.string().min(10, "Please tell us a little more (at least 10 characters)")),

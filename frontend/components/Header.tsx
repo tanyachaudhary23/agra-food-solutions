@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, Search, X } from "lucide-react";
 import { nav, site } from "@/lib/site";
+import { useQuoteList } from "@/components/QuoteList";
 
 export function BrandMark({ light = false }: { light?: boolean }) {
   return (
@@ -53,6 +54,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [searching, setSearching] = useState(false);
   const pathname = usePathname();
+  const { items } = useQuoteList();
 
   useEffect(() => { setOpen(false); setSearching(false); }, [pathname]);
   useEffect(() => {
@@ -89,7 +91,10 @@ export default function Header() {
           >
             {searching ? <X size={20} /> : <Search size={20} />}
           </button>
-          <Link href="/contact#quote" className="btn btn-forest py-2.5">Request a Quote</Link>
+          <Link href="/contact#quote" className="btn btn-forest relative py-2.5" aria-label={items.length ? `Request a Quote, ${items.length} product${items.length === 1 ? "" : "s"} in your list` : undefined}>
+            Request a Quote
+            {items.length > 0 && <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brass px-1 text-[11px] font-bold text-forest">{items.length}</span>}
+          </Link>
         </nav>
 
         <button
@@ -99,7 +104,10 @@ export default function Header() {
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? <X size={24} /> : <Menu size={24} />}
+          <span className="relative block">
+            {open ? <X size={24} /> : <Menu size={24} />}
+            {!open && items.length > 0 && <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brass px-1 font-heading text-[11px] font-bold text-forest">{items.length}</span>}
+          </span>
         </button>
       </div>
 
@@ -120,6 +128,11 @@ export default function Header() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link href="/contact#quote" className="block border-b border-forest/10 py-3 font-heading text-base font-medium text-forest">
+                Quote list{items.length ? ` (${items.length})` : ""}
+              </Link>
+            </li>
             <li className="pt-4">
               <Link href="/contact#quote" className="btn btn-forest w-full">Request a Quote</Link>
             </li>

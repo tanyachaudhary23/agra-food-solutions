@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import ImagePlaceholder from "./ImagePlaceholder";
 import type { Product } from "@/lib/types";
+import { AddToQuoteButton } from "@/components/QuoteList";
 
 export default function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const img = product.images[0];
@@ -24,6 +25,7 @@ export default function ProductCard({ product, priority = false }: { product: Pr
             Request a Quote
           </Link>
         </div>
+        <AddToQuoteButton product={{ slug: product.slug, name: product.name }} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 border border-forest/25 py-2 font-heading text-sm font-semibold text-forest transition-colors hover:border-forest hover:bg-forest hover:text-ivory disabled:opacity-50 aria-pressed:border-forest aria-pressed:bg-forest/10 aria-pressed:text-forest aria-pressed:hover:bg-forest/20 aria-pressed:hover:text-forest" />
       </div>
     </article>
   );
