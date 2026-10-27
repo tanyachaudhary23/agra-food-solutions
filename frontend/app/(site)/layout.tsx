@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 // Content comes from the backend, so pages are rendered on request (API responses are cached for 30 seconds).
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       <main id="main">{children}</main>
       <Footer />
+      <WhatsAppButton />
       <Reveal />
       <ConsentAnalytics />
     </>
