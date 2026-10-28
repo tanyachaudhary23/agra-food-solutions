@@ -127,7 +127,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
         <section className="mt-16 bg-forest p-8 text-ivory sm:p-12">
           <h2 className="text-3xl font-bold !text-ivory">Enquire about {p.name}</h2>
-          <p className="mt-3 max-w-xl text-ivory/80">The product is preselected in our enquiry form. Add quantity and requirements to receive a quotation.</p>
+          <p className="mt-3 max-w-xl text-ivory/80">This product is added to your quote list. Add quantities and requirements, or more products, to receive a quotation.</p>
           <Link href={quoteHref} className="btn btn-brass mt-6">Open enquiry form</Link>
         </section>
 

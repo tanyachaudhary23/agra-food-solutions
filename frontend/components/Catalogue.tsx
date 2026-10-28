@@ -18,7 +18,7 @@ export default function Catalogue({ products, categories }: { products: Product[
     const term = q.trim().toLowerCase();
     return products.filter((p) => {
       if (active !== "all" && p.category !== active) return false;
-      if (activeIndustry !== "all" && !p.industries.includes(activeIndustry)) return false;
+      if (activeIndustry !== "all" && !(p.industries ?? []).includes(activeIndustry)) return false;
       if (!term) return true;
       const hay = [p.name, categories.find((c) => c.slug === p.category)?.name ?? "", ...p.variants, ...p.specifications.map((s) => `${s.label} ${s.value}`)].join(" ").toLowerCase();
       return term.split(/\s+/).every((t) => hay.includes(t));

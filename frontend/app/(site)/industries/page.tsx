@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function Industries() {
   const products = await getAllProducts();
-  const count = (slug: string) => (products ? products.filter((p) => p.industries.includes(slug)).length : null);
+  const count = (slug: string) => (products ? products.filter((p) => (p.industries ?? []).includes(slug)).length : null);
   return (
     <>
       <PageHero eyebrow="Industries" title="Industries and applications." intro="Spare parts and accessories for plants that process grain, as listed in our catalogue." />
