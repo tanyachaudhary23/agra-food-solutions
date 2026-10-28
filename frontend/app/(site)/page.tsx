@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import CatalogueDownload from "@/components/CatalogueDownload";
 import { getAllProducts, getCategories } from "@/lib/products";
 import { industries } from "@/lib/site";
 
@@ -84,7 +85,10 @@ export default async function Home() {
           <div className="container-page">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <Heading eyebrow="Product categories" title="Parts and machinery for milling operations." />
-              <Link href="/products" className="reveal btn btn-outline">View full catalogue{total ? ` (${total} products)` : ""}</Link>
+              <div className="reveal flex flex-wrap gap-3">
+                <Link href="/products" className="btn btn-outline">View full catalogue{total ? ` (${total} products)` : ""}</Link>
+                <CatalogueDownload className="btn btn-forest" label="Download PDF" />
+              </div>
             </div>
             <ul className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {categories.map((c, i) => (

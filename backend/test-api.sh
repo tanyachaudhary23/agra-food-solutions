@@ -76,6 +76,13 @@ RESTORE=$(curl -s -X POST $API/api/admin/password -H "$H" -H 'Content-Type: appl
 check "password restored" "$(echo "$RESTORE" | json "'ok' if d.get('ok') else 'no'")" ok
 H="Authorization: Bearer $(echo "$RESTORE" | json "d['token']")"
 
+# catalogue PDF
+curl -s -D /tmp/afs-cat.h -o /tmp/afs-cat.pdf $API/api/catalogue.pdf
+check "catalogue is a PDF" "$(head -c 5 /tmp/afs-cat.pdf)" "%PDF-"
+check "catalogue sent as a download" "$(grep -ci 'content-disposition: attachment' /tmp/afs-cat.h)" 1
+CATETAG=$(grep -i '^etag:' /tmp/afs-cat.h | awk '{print $2}' | tr -d '\r')
+check "catalogue supports caching (304)" "$(code -H "If-None-Match: $CATETAG" $API/api/catalogue.pdf)" 304
+
 # email retry and logout revocation
 EID=$(curl -s "$API/api/admin/enquiries" -H "$H" | json "d['items'][0]['id'] if d['items'] else 0")
 if [ "$EID" != "0" ]; then check "resend email endpoint answers" "$(code -X POST $API/api/admin/enquiries/$EID/resend-email -H "$H")" 200; fi

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { CATALOGUE_URL } from "@/components/CatalogueDownload";
 import { getSettings, nav, site, telHref, whatsappLink } from "@/lib/site";
 import { getCategories } from "@/lib/products";
 import { BrandMark } from "./Header";
@@ -38,6 +39,7 @@ export default async function Footer() {
               <li key={n.href}><Link className="hover:text-brass" href={n.href}>{n.label}</Link></li>
             ))}
             <li><Link className="hover:text-brass" href="/contact#quote">Request a Quote</Link></li>
+            <li><a className="hover:text-brass" href={CATALOGUE_URL} download="Agra-Food-Solutions-Catalogue.pdf">Download catalogue (PDF)</a></li>
           </ul>
         </div>
 

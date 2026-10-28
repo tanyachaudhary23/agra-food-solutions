@@ -7,6 +7,7 @@ import { getSettings } from "../settings.js";
 import { getProductBySlug, listProducts } from "../products.js";
 import { enquiryUpload, savePrivateAttachment } from "../uploads.js";
 import { sendEnquiryEmail } from "../mail.js";
+import { getCataloguePdf } from "../catalogue.js";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -32,6 +33,23 @@ publicRouter.get("/products/:slug", (req, res) => {
   const p = getProductBySlug(req.params.slug, true);
   if (!p) return void res.status(404).json({ error: "Product not found" });
   res.json(p);
+});
+
+// Product catalogue as a PDF, built from the live published products (rebuilt only when something changes).
+const catalogueLimiter = rateLimit({ windowMs: 60 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false, handler: (_req, res) => void res.status(429).json({ error: "Too many downloads. Please try again later." }) });
+publicRouter.get("/catalogue.pdf", catalogueLimiter, async (req, res) => {
+  try {
+    const { pdf, key } = await getCataloguePdf();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="Agra-Food-Solutions-Catalogue.pdf"');
+    res.setHeader("Cache-Control", "public, max-age=300");
+    res.setHeader("ETag", `"${key}"`);
+    if (req.headers["if-none-match"] === `"${key}"`) return void res.status(304).end();
+    res.send(pdf);
+  } catch (e) {
+    console.error("[catalogue] could not build the PDF:", e instanceof Error ? e.message : e);
+    res.status(500).json({ error: "The catalogue could not be prepared. Please try again shortly." });
+  }
 });
 
 publicRouter.get("/settings", (_req, res) => res.json(getSettings()));

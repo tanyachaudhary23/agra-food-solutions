@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
+import CatalogueDownload from "@/components/CatalogueDownload";
 import ProductCard from "./ProductCard";
 import type { Category, Product } from "@/lib/types";
 import { industries } from "@/lib/site";
@@ -55,10 +56,13 @@ export default function Catalogue({ products, categories }: { products: Product[
   return (
     <div>
       <div className="flex flex-col gap-6">
-        <div className="relative max-w-xl">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="relative w-full max-w-xl">
           <label htmlFor="product-search" className="sr-only">Search products</label>
           <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-forest/60" aria-hidden />
           <input id="product-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products, parts or specifications" className="field pl-10" />
+        </div>
+        <CatalogueDownload />
         </div>
         <div>
           <p className="eyebrow mb-3">Industry</p>
