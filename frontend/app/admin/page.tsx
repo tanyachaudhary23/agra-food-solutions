@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { adminFetch, STATUS_LABEL } from "@/lib/admin";
 import { Card, Notice, PageTitle, Skeleton } from "@/components/admin/ui";
 
-type Stats = { products: number; published: number; drafts: number; categories: number; enquiries: number; newEnquiries: number; last7Days: number; emailFailed: number };
+type Stats = { products: number; published: number; drafts: number; categories: number; enquiries: number; newEnquiries: number; last7Days: number; emailFailed: number; deletedEnquiries: number };
 type Enquiry = { id: number; createdAt: string; name: string; company: string; country: string; product: string; status: string };
 
 export default function Dashboard() {

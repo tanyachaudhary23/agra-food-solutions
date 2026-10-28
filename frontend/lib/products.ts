@@ -4,9 +4,10 @@ import type { Category, Product } from "./types";
 export type { Category, Product };
 
 /** Returns null when the backend cannot be reached, so pages can show a proper error state. */
-export const getAllProducts = () => apiGet<Product[]>("/api/products");
+export const getAllProducts = (revalidate = 30) => apiGet<Product[]>("/api/products", revalidate);
 export const getCategories = async () => (await apiGet<Category[]>("/api/categories")) ?? [];
-export const getProduct = (slug: string) => apiGet<Product>(`/api/products/${encodeURIComponent(slug)}`);
+/** Product pages are never cached: a deleted or hidden product must stop opening immediately. */
+export const getProduct = (slug: string) => apiGet<Product>(`/api/products/${encodeURIComponent(slug)}`, 0);
 
 export async function getFeaturedProducts(limit = 4) {
   const all = (await getAllProducts()) ?? [];

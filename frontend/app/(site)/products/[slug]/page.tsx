@@ -8,6 +8,7 @@ import ProductCard from "@/components/ProductCard";
 import { getAllProducts, getProduct, getRelatedProducts } from "@/lib/products";
 import { getSettings, site, whatsappLink } from "@/lib/site";
 import { AddToQuoteButton } from "@/components/QuoteList";
+import ProductAvailability from "@/components/ProductAvailability";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [p, all, s] = await Promise.all([getProduct(slug), getAllProducts(), getSettings()]);
+  const [p, all, s] = await Promise.all([getProduct(slug), getAllProducts(0), getSettings()]);
   if (!p) {
     // The backend answered "not found" -> 404; the backend being down is different (all === null).
     if (all === null) return <div className="container-page py-20"><Unavailable what="This product" /></div>;
@@ -48,6 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <ProductAvailability slug={p.slug} name={p.name} />
       <div className="container-page py-10">
         <nav aria-label="Breadcrumb" className="text-sm text-charcoal/70">
           <Link href="/products" className="hover:text-brass-700">Products</Link>

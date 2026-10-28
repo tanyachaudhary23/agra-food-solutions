@@ -88,9 +88,9 @@ export default function ProductEditor() {
   }
 
   async function remove() {
-    const ok = await confirm({ title: `Delete "${f.name}"?`, body: "This permanently removes the product. To hide it from the website instead, set its status to Draft and save.", confirmLabel: "Delete product", danger: true });
+    const ok = await confirm({ title: `Delete "${f.name}"?`, body: f.status === "published" ? "This product is live on your website. Deleting it removes it from the website, the catalogue PDF and all enquiry forms straight away. You can bring it back from Products > Deleted for 30 days. To only hide it, set its status to Draft instead." : "It will be removed from the admin list. You can bring it back from Products > Deleted for 30 days.", confirmLabel: "Yes, delete product", danger: true });
     if (!ok) return;
-    try { await adminFetch(`/products/${id}`, { method: "DELETE" }); toast.success("Product deleted."); router.replace("/admin/products"); } catch (x) { toast.error((x as Error).message); }
+    try { await adminFetch(`/products/${id}`, { method: "DELETE" }); toast.success("Product moved to Deleted. You can restore it for 30 days."); router.replace("/admin/products"); } catch (x) { toast.error((x as Error).message); }
   }
 
   if (!loaded) return err ? <Notice kind="error">{err}</Notice> : <FormSkeleton cards={3} />;

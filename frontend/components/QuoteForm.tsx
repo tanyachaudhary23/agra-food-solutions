@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { enquirySchema, validateFile, type FieldErrors } from "@/lib/enquiry";
 import { API_URL } from "@/lib/api";
 import { useQuoteList } from "@/components/QuoteList";
+import { track } from "@/lib/analytics";
 
 type Props = { products: { slug: string; name: string }[]; initialProduct?: string; initialMessage?: string };
 const TURNSTILE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -30,6 +31,9 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
     // With a quote list, the product line is built from it (name and wanted quantity per product).
     if (list.items.length) data.set("product", list.items.map((i, n) => `${n + 1}. ${i.name}${i.qty.trim() ? ` - ${i.qty.trim()}` : ""}`).join("\n"));
 
+    // The server checks these slugs, so an enquiry for a product that was deleted in the meantime is refused.
+    data.set("productSlugs", list.items.map((i) => i.slug).join(","));
+
     // Client-side validation (the server validates again)
     const raw = Object.fromEntries(
       ["name", "company", "email", "country", "phone", "product", "quantity", "requirements", "message"].map((k) => [k, String(data.get(k) ?? "")])
@@ -51,7 +55,8 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
       const res = await fetch(`${API_URL}/api/enquiries`, { method: "POST", body: data });
       const json = await res.json().catch(() => ({}));
       captcha.current?.reset();
-      if (res.ok && json.ok) { setStatus("success"); form.reset(); list.clear(); return; }
+      if (res.ok && json.ok) { setStatus("success"); track("Enquiry Sent", { products: list.items.length }); form.reset(); list.clear(); return; }
+      if (Array.isArray(json.unavailable)) for (const s of json.unavailable as string[]) list.remove(s);
       setErrors(json.errors || { form: "Something went wrong. Please try again." });
       setStatus("error");
     } catch {

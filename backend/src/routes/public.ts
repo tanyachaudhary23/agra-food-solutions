@@ -4,7 +4,7 @@ import { z } from "zod";
 import { config } from "../config.js";
 import { db, privateUploadDir } from "../db.js";
 import { getSettings } from "../settings.js";
-import { getProductBySlug, listProducts } from "../products.js";
+import { getProductBySlug, listProducts, unavailableSlugs } from "../products.js";
 import { enquiryUpload, savePrivateAttachment } from "../uploads.js";
 import { sendEnquiryEmail } from "../mail.js";
 import { getCataloguePdf } from "../catalogue.js";
@@ -111,6 +111,17 @@ publicRouter.post("/enquiries", enquiryLimiter, enquiryUpload, async (req, res) 
     const errors: Record<string, string> = {};
     for (const i of parsed.error.issues) if (!errors[String(i.path[0])]) errors[String(i.path[0])] = i.message;
     return void res.status(422).json({ ok: false, errors });
+  }
+
+  // The form also sends the slugs of the products being quoted. Refuse the enquiry if any has been deleted or hidden since the buyer picked it.
+  const slugs = [...new Set(String(body.productSlugs ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean))].slice(0, 30);
+  const gone = unavailableSlugs(slugs);
+  if (gone.length) {
+    return void res.status(409).json({
+      ok: false,
+      unavailable: gone,
+      errors: { form: "One or more products in your enquiry are no longer available. We have removed them from your list; please check it and send again." },
+    });
   }
 
   let attachment: { stored: string; safeOriginal: string } | undefined;

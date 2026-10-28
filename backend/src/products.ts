@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { db, slugify, uniqueSlug } from "./db.js";
+import { db, slugify, TRASH_RETENTION_DAYS, uniqueSlug } from "./db.js";
 import { toAbsolute, toRelative } from "./uploads.js";
 import { INDUSTRY_SLUGS } from "./industries.js";
 
@@ -43,15 +43,29 @@ export function serializeProduct(r: Row, admin = false) {
 }
 
 export const listProducts = (publishedOnly: boolean) =>
-  (db.prepare(`${SELECT} ${publishedOnly ? "WHERE p.status = 'published'" : ""} ORDER BY p.sort_order, p.id`).all() as Row[]).map((r) => serializeProduct(r, !publishedOnly));
+  (db.prepare(`${SELECT} WHERE p.deleted_at IS NULL ${publishedOnly ? "AND p.status = 'published'" : ""} ORDER BY p.sort_order, p.id`).all() as Row[]).map((r) => serializeProduct(r, !publishedOnly));
 
 export const getProductBySlug = (slug: string, publishedOnly: boolean) => {
-  const r = db.prepare(`${SELECT} WHERE p.slug = ? ${publishedOnly ? "AND p.status = 'published'" : ""}`).get(slug) as Row | undefined;
+  const r = db.prepare(`${SELECT} WHERE p.deleted_at IS NULL AND p.slug = ? ${publishedOnly ? "AND p.status = 'published'" : ""}`).get(slug) as Row | undefined;
   return r ? serializeProduct(r, !publishedOnly) : undefined;
 };
 
+/** Products in the recycle bin, most recently deleted first. `daysLeft` counts down to permanent removal. */
+export const listDeletedProducts = () =>
+  (db.prepare(`${SELECT} WHERE p.deleted_at IS NOT NULL ORDER BY p.deleted_at DESC, p.id DESC`).all() as (Row & { deleted_at: string })[]).map((r) => ({
+    ...serializeProduct(r, true),
+    deletedAt: r.deleted_at,
+    daysLeft: Math.max(0, Math.ceil(TRASH_RETENTION_DAYS - (Date.now() - new Date(r.deleted_at.replace(" ", "T") + "Z").getTime()) / 86400000)),
+  }));
+
+/** Which of these slugs are NOT live (deleted, drafted or never existed)? Used to refuse enquiries for products that are gone. */
+export const unavailableSlugs = (slugs: string[]) => {
+  const stmt = db.prepare("SELECT 1 FROM products WHERE slug = ? AND status = 'published' AND deleted_at IS NULL");
+  return slugs.filter((s) => !stmt.get(s));
+};
+
 export const getProductById = (id: number) => {
-  const r = db.prepare(`${SELECT} WHERE p.id = ?`).get(id) as Row | undefined;
+  const r = db.prepare(`${SELECT} WHERE p.deleted_at IS NULL AND p.id = ?`).get(id) as Row | undefined;
   return r ? serializeProduct(r, true) : undefined;
 };
 
@@ -100,8 +114,24 @@ const toColumns = (p: ProductInput) => ({
   sort_order: p.sortOrder,
 });
 
+/** The next free product code, AFS-091 style. Deleted products keep their numbers so a code is never reused. */
+export function nextProductCode(): string {
+  const rows = db.prepare("SELECT code FROM products").all() as { code: string }[];
+  const max = rows.reduce((m, r) => Math.max(m, Number(/^AFS-(\d+)$/i.exec(r.code.trim())?.[1] ?? 0)), 0);
+  return `AFS-${String(max + 1).padStart(3, "0")}`;
+}
+
+/** Gives every product that has no code the next AFS number (runs at server start). Returns how many were filled. */
+export function fillMissingProductCodes(): number {
+  const ids = db.prepare("SELECT id FROM products WHERE TRIM(code) = '' ORDER BY id").all() as { id: number }[];
+  const set = db.prepare("UPDATE products SET code = ? WHERE id = ?");
+  for (const r of ids) set.run(nextProductCode(), r.id);
+  return ids.length;
+}
+
 export function createProduct(p: ProductInput): number {
-  const cols = toColumns(p);
+  const cols = { ...toColumns(p) };
+  if (!cols.code) cols.code = nextProductCode();
   const order = p.sortOrder || ((db.prepare("SELECT COALESCE(MAX(sort_order),0)+1 AS n FROM products").get() as { n: number }).n);
   const slug = uniqueSlug("products", p.slug || slugify(p.name));
   const res = db
@@ -114,7 +144,8 @@ export function createProduct(p: ProductInput): number {
 }
 
 export function updateProduct(id: number, p: ProductInput) {
-  const cols = toColumns(p);
+  const cols = { ...toColumns(p) };
+  if (!cols.code) cols.code = nextProductCode();
   const slug = uniqueSlug("products", p.slug || slugify(p.name), id);
   db.prepare(
     `UPDATE products SET code=@code, slug=@slug, name=@name, category_id=@category_id, short_description=@short_description, full_description=@full_description,

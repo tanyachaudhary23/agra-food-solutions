@@ -29,6 +29,14 @@ check "published visible" "$(code $API/api/products/test-widget)" 200
 check "external image URL rejected" "$(code -X PUT $API/api/admin/products/$PID -H "$H" -H 'Content-Type: application/json' -d "{\"name\":\"Test Widget\",\"categoryId\":$CAT,\"images\":[{\"src\":\"http://evil.example/x.png\"}]}")" 422
 check "delete product" "$(code -X DELETE -H "$H" $API/api/admin/products/$PID)" 200
 check "deleted product gone" "$(code $API/api/products/test-widget)" 404
+check "deleted product listed in bin" "$(curl -s -H "$H" "$API/api/admin/products?view=deleted" | json "len([p for p in d if p['id']==$PID])")" 1
+check "deleted product not in admin list" "$(curl -s -H "$H" "$API/api/admin/products" | json "len([p for p in d if p['id']==$PID])")" 0
+check "enquiry for a deleted product is refused" "$(code -X POST $API/api/enquiries -F name=Jane -F company=Acme -F email=j@acme.com -F country=UK -F phone='+44 20 1234 5678' -F message='Quote for the widget please' -F consent=true -F productSlugs=test-widget)" 409
+check "restore deleted product" "$(code -X POST -H "$H" $API/api/admin/products/$PID/restore)" 200
+check "restored product is a draft (still hidden)" "$(code $API/api/products/test-widget)" 404
+check "delete forever needs the bin first" "$(code -X DELETE -H "$H" $API/api/admin/products/$PID/permanent)" 404
+code -X DELETE -H "$H" $API/api/admin/products/$PID >/dev/null
+check "delete product forever" "$(code -X DELETE -H "$H" $API/api/admin/products/$PID/permanent)" 200
 
 # category with products cannot be deleted
 check "non-empty category protected" "$(code -X DELETE -H "$H" $API/api/admin/categories/$CAT)" 409
@@ -48,6 +56,24 @@ check "attachment download" "$(code -H "$H" $API/api/admin/enquiries/$EID/attach
 check "attachment not public" "$(code $API/api/admin/enquiries/$EID/attachment)" 401
 check "status update" "$(code -X PATCH $API/api/admin/enquiries/$EID -H "$H" -H 'Content-Type: application/json' -d '{"status":"quoted","notes":"sent quote"}')" 200
 check "csv export" "$(code -H "$H" $API/api/admin/enquiries.csv)" 200
+
+# recycle bin: delete -> Deleted tab -> restore; delete again -> delete forever
+check "delete enquiry (to recycle bin)" "$(code -X DELETE -H "$H" $API/api/admin/enquiries/$EID)" 200
+check "deleted enquiry leaves the main list" "$(curl -s -H "$H" "$API/api/admin/enquiries?q=Acme" | json "len([i for i in d['items'] if i['id']==$EID])")" 0
+check "deleted enquiry is in the Deleted tab" "$(curl -s -H "$H" "$API/api/admin/enquiries?view=deleted" | json "len([i for i in d['items'] if i['id']==$EID])")" 1
+check "Deleted tab shows days left (30)" "$(curl -s -H "$H" "$API/api/admin/enquiries?view=deleted" | json "[i for i in d['items'] if i['id']==$EID][0]['daysLeft']")" 30
+check "deleted enquiry not in csv" "$(curl -s -H "$H" $API/api/admin/enquiries.csv | grep -c 'jane@acme.com')" 0
+check "attachment still downloadable from the bin" "$(code -H "$H" $API/api/admin/enquiries/$EID/attachment)" 200
+check "cannot edit a deleted enquiry" "$(code -X PATCH $API/api/admin/enquiries/$EID -H "$H" -H 'Content-Type: application/json' -d '{"status":"closed"}')" 404
+check "deleting twice is 404" "$(code -X DELETE -H "$H" $API/api/admin/enquiries/$EID)" 404
+check "cannot delete-forever an active enquiry" "$(code -X DELETE -H "$H" $API/api/admin/enquiries/999999/permanent)" 404
+check "restore enquiry" "$(code -X POST -H "$H" $API/api/admin/enquiries/$EID/restore)" 200
+check "restored enquiry is back in the main list" "$(curl -s -H "$H" "$API/api/admin/enquiries?q=Acme" | json "len([i for i in d['items'] if i['id']==$EID])")" 1
+check "restoring an active enquiry is 404" "$(code -X POST -H "$H" $API/api/admin/enquiries/$EID/restore)" 404
+check "cannot delete-forever an active enquiry" "$(code -X DELETE -H "$H" $API/api/admin/enquiries/$EID/permanent)" 404
+code -X DELETE -H "$H" $API/api/admin/enquiries/$EID >/dev/null
+check "delete forever from the bin" "$(code -X DELETE -H "$H" $API/api/admin/enquiries/$EID/permanent)" 200
+check "gone for good" "$(code -H "$H" $API/api/admin/enquiries/$EID)" 404
 
 # image upload: re-encoded, junk rejected
 python3 - <<'PY'

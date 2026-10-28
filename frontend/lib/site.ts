@@ -12,7 +12,11 @@ export const site = {
   tagline: "Precision in Every Part. Confidence in Every Shipment.",
   description:
     "Manufacturer, supplier and exporter of spare parts for roller flour mills, rice mills and other grain milling industry.",
-  analytics: { plausibleDomain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || "" },
+  analytics: {
+    plausibleDomain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || "",
+    // Only an https://plausible.io/... address is accepted, so a typo cannot load an unknown script.
+    plausibleScriptUrl: /^https:\/\/plausible\.io\/js\/[\w.-]+\.js$/.test(process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL || "") ? (process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL as string) : "",
+  },
 };
 
 export const nav = [

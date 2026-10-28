@@ -95,7 +95,41 @@ if (!(db.prepare("PRAGMA table_info(admins)").all() as { name: string }[]).some(
   db.exec("ALTER TABLE admins ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0");
 }
 
-export const slugify = (s: string) =>
+// Recycle bin: deleting an enquiry only stamps deleted_at. It can be restored until purgeExpiredEnquiries() removes it for good.
+if (!(db.prepare("PRAGMA table_info(enquiries)").all() as { name: string }[]).some((c) => c.name === "deleted_at")) {
+  db.exec("ALTER TABLE enquiries ADD COLUMN deleted_at TEXT");
+}
+db.exec("CREATE INDEX IF NOT EXISTS idx_enquiries_deleted ON enquiries(deleted_at)");
+
+// Product recycle bin: deleting a product only stamps deleted_at (it disappears from the website at once) and can be restored for 30 days.
+if (!(db.prepare("PRAGMA table_info(products)").all() as { name: string }[]).some((c) => c.name === "deleted_at")) {
+  db.exec("ALTER TABLE products ADD COLUMN deleted_at TEXT");
+}
+
+export const TRASH_RETENTION_DAYS = 30;
+
+/** Permanently removes products that have been in the recycle bin for more than 30 days. Returns how many. */
+export function purgeExpiredProducts(): number {
+  return db.prepare("DELETE FROM products WHERE deleted_at IS NOT NULL AND deleted_at <= datetime('now', ?)").run(`-${TRASH_RETENTION_DAYS} days`).changes;
+}
+
+/** Permanently removes enquiries (and their attachment files) that have been in the recycle bin for more than 30 days. Returns how many. */
+export function purgeExpiredEnquiries(): number {
+  const rows = db
+    .prepare("SELECT id, attachment_file FROM enquiries WHERE deleted_at IS NOT NULL AND deleted_at <= datetime('now', ?)")
+    .all(`-${TRASH_RETENTION_DAYS} days`) as { id: number; attachment_file: string | null }[];
+  const del = db.prepare("DELETE FROM enquiries WHERE id = ?");
+  for (const r of rows) {
+    // Delete the row first: a leftover file is harmless, a row pointing at a missing file is not.
+    del.run(r.id);
+    if (r.attachment_file) {
+      try { fs.unlinkSync(path.join(privateUploadDir, path.basename(r.attachment_file))); } catch { /* already gone */ }
+    }
+  }
+  return rows.length;
+}
+
+export const slugify =(s: string) =>
   s
     .toLowerCase()
     .replace(/&/g, " and ")

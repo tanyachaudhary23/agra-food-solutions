@@ -3,10 +3,10 @@ import bcrypt from "bcryptjs";
 import rateLimit from "express-rate-limit";
 import fs from "node:fs";
 import { z } from "zod";
-import { db, slugify, uniqueSlug } from "../db.js";
+import { db, slugify, TRASH_RETENTION_DAYS, uniqueSlug } from "../db.js";
 import { sendEnquiryEmail, type EnquiryForMail } from "../mail.js";
 import { requireAdmin, signToken, type AdminRow } from "../auth.js";
-import { createProduct, getProductById, listProducts, productSchema, updateProduct } from "../products.js";
+import { createProduct, getProductById, listDeletedProducts, listProducts, productSchema, updateProduct } from "../products.js";
 import { getSettings, saveSettings, settingsSchema } from "../settings.js";
 import { documentUpload, imageUpload, savePublicImage, savePublicPdf } from "../uploads.js";
 import { attachmentPath } from "./public.js";
@@ -56,14 +56,16 @@ adminRouter.post("/logout", (_req, res) => {
 adminRouter.get("/stats", (_req, res) => {
   const one = <T,>(sql: string) => db.prepare(sql).get() as T;
   res.json({
-    products: one<{ n: number }>("SELECT COUNT(*) n FROM products").n,
-    published: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE status='published'").n,
-    drafts: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE status='draft'").n,
+    deletedProducts: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE deleted_at IS NOT NULL").n,
+    products: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE deleted_at IS NULL").n,
+    published: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE deleted_at IS NULL AND status='published'").n,
+    drafts: one<{ n: number }>("SELECT COUNT(*) n FROM products WHERE deleted_at IS NULL AND status='draft'").n,
     categories: one<{ n: number }>("SELECT COUNT(*) n FROM categories").n,
-    enquiries: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries").n,
-    newEnquiries: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE status='new'").n,
-    last7Days: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE created_at >= datetime('now','-7 days')").n,
-    emailFailed: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE email_status IN ('failed','not_configured')").n,
+    enquiries: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE deleted_at IS NULL").n,
+    newEnquiries: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE status='new' AND deleted_at IS NULL").n,
+    last7Days: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE created_at >= datetime('now','-7 days') AND deleted_at IS NULL").n,
+    emailFailed: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE email_status IN ('failed','not_configured') AND deleted_at IS NULL").n,
+    deletedEnquiries: one<{ n: number }>("SELECT COUNT(*) n FROM enquiries WHERE deleted_at IS NOT NULL").n,
   });
 });
 
@@ -96,7 +98,7 @@ const categorySchema = z.object({
 
 adminRouter.get("/categories", (_req, res) => {
   res.json(
-    db.prepare(`SELECT c.id, c.slug, c.name, c.description, c.sort_order AS sortOrder, (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id) AS productCount FROM categories c ORDER BY c.sort_order, c.id`).all()
+    db.prepare(`SELECT c.id, c.slug, c.name, c.description, c.sort_order AS sortOrder, (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id AND p.deleted_at IS NULL) AS productCount FROM categories c ORDER BY c.sort_order, c.id`).all()
   );
 });
 
@@ -122,13 +124,15 @@ adminRouter.put("/categories/:id", (req, res) => {
 adminRouter.delete("/categories/:id", (req, res) => {
   const id = Number(req.params.id);
   const n = (db.prepare("SELECT COUNT(*) n FROM products WHERE category_id = ?").get(id) as { n: number }).n;
+  if (n > 0 && !(db.prepare("SELECT 1 FROM products WHERE category_id = ? AND deleted_at IS NULL").get(id)))
+    return void res.status(409).json({ error: `This category only holds ${n} product(s) in the recycle bin. Delete them forever from Products > Deleted first.` });
   if (n > 0) return void res.status(409).json({ error: `This category still has ${n} product(s). Move or delete them first.` });
   db.prepare("DELETE FROM categories WHERE id = ?").run(id);
   res.json({ ok: true });
 });
 
 // ---------- Products ----------
-adminRouter.get("/products", (_req, res) => res.json(listProducts(false)));
+adminRouter.get("/products", (req, res) => res.json(req.query.view === "deleted" ? listDeletedProducts() : listProducts(false)));
 
 adminRouter.get("/products/:id", (req, res) => {
   const p = getProductById(Number(req.params.id));
@@ -155,8 +159,23 @@ adminRouter.put("/products/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+// Deleting only moves a product to the recycle bin: it vanishes from the website, catalogue PDF and enquiry forms at once, and can be restored for 30 days.
 adminRouter.delete("/products/:id", (req, res) => {
-  db.prepare("DELETE FROM products WHERE id = ?").run(Number(req.params.id));
+  const r = db.prepare("UPDATE products SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL").run(Number(req.params.id));
+  if (!r.changes) return void res.status(404).json({ error: "Product not found" });
+  res.json({ ok: true });
+});
+
+// A restored product comes back as a Draft, so it never reappears on the website by surprise. Publish it again when ready.
+adminRouter.post("/products/:id/restore", (req, res) => {
+  const r = db.prepare("UPDATE products SET deleted_at = NULL, status = 'draft', updated_at = datetime('now') WHERE id = ? AND deleted_at IS NOT NULL").run(Number(req.params.id));
+  if (!r.changes) return void res.status(404).json({ error: "Product not found in the recycle bin" });
+  res.json({ ok: true });
+});
+
+adminRouter.delete("/products/:id/permanent", (req, res) => {
+  const r = db.prepare("DELETE FROM products WHERE id = ? AND deleted_at IS NOT NULL").run(Number(req.params.id));
+  if (!r.changes) return void res.status(404).json({ error: "Product not found in the recycle bin" });
   res.json({ ok: true });
 });
 
@@ -174,30 +193,41 @@ adminRouter.put("/settings", (req, res) => {
 const STATUSES = ["new", "in_progress", "quoted", "closed"] as const;
 type EnquiryRow = Record<string, string | number | null> & { id: number };
 
+// `number` is the enquiry's position among all enquiries still active (1 = oldest), so it stays in step when one is deleted.
+// An enquiry in the recycle bin shows the number it will get back if restored.
+const SEQ_SQL = `CASE WHEN enquiries.deleted_at IS NULL
+  THEN (SELECT COUNT(*) FROM enquiries e2 WHERE e2.deleted_at IS NULL AND e2.id <= enquiries.id)
+  ELSE (SELECT COUNT(*) FROM enquiries e2 WHERE e2.deleted_at IS NULL AND e2.id < enquiries.id) + 1 END AS seq`;
+
 adminRouter.get("/enquiries", (req, res) => {
   const status = String(req.query.status || "");
   const q = String(req.query.q || "").trim();
+  const deleted = req.query.view === "deleted"; // the recycle bin
   const page = Math.max(1, Number(req.query.page) || 1);
   const per = 25;
-  const where: string[] = [];
+  const where: string[] = [deleted ? "deleted_at IS NOT NULL" : "deleted_at IS NULL"];
   const args: (string | number)[] = [];
   if ((STATUSES as readonly string[]).includes(status)) { where.push("status = ?"); args.push(status); }
   if (q) {
     where.push("(name LIKE ? OR company LIKE ? OR email LIKE ? OR country LIKE ? OR product LIKE ? OR message LIKE ?)");
     args.push(...Array(6).fill(`%${q}%`));
   }
-  const w = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const w = `WHERE ${where.join(" AND ")}`;
   const total = (db.prepare(`SELECT COUNT(*) n FROM enquiries ${w}`).get(...args) as { n: number }).n;
-  const rows = db.prepare(`SELECT enquiries.*, (SELECT COUNT(*) FROM enquiries e2 WHERE e2.id <= enquiries.id) AS seq FROM enquiries ${w} ORDER BY id DESC LIMIT ${per} OFFSET ${(page - 1) * per}`).all(...args) as EnquiryRow[];
+  const order = deleted ? "deleted_at DESC, id DESC" : "id DESC";
+  const rows = db.prepare(`SELECT enquiries.*, ${SEQ_SQL} FROM enquiries ${w} ORDER BY ${order} LIMIT ${per} OFFSET ${(page - 1) * per}`).all(...args) as EnquiryRow[];
   res.json({ total, page, pages: Math.max(1, Math.ceil(total / per)), items: rows.map(mapEnquiry) });
 });
 
-// `number` is the enquiry's position among all enquiries still saved (1 = oldest), so it stays in step when one is deleted.
+/** Whole days left before a deleted enquiry is removed for good (never below 0). */
+const daysLeft = (deletedAt: string) => Math.max(0, Math.ceil((new Date(deletedAt.replace(" ", "T") + "Z").getTime() + TRASH_RETENTION_DAYS * 86400000 - Date.now()) / 86400000));
+
 const mapEnquiry = (r: EnquiryRow) => ({
   id: r.id, number: Number(r.seq) || null, createdAt: r.created_at, name: r.name, company: r.company, email: r.email, country: r.country, phone: r.phone,
   product: r.product, quantity: r.quantity, requirements: r.requirements, message: r.message,
   attachmentName: r.attachment_name, hasAttachment: !!r.attachment_file, status: r.status, notes: r.notes,
   emailStatus: r.email_status, emailError: r.email_error,
+  deletedAt: r.deleted_at, daysLeft: r.deleted_at ? daysLeft(String(r.deleted_at)) : null,
 });
 
 const csvCell = (v: unknown) => {
@@ -207,16 +237,16 @@ const csvCell = (v: unknown) => {
 };
 
 adminRouter.get("/enquiries.csv", (_req, res) => {
-  const rows = db.prepare("SELECT * FROM enquiries ORDER BY id DESC").all() as EnquiryRow[];
+  const rows = db.prepare("SELECT * FROM enquiries WHERE deleted_at IS NULL ORDER BY id DESC").all() as EnquiryRow[];
   const head = ["No.", "Date (UTC)", "Status", "Name", "Company", "Email", "Country", "Phone", "Product", "Quantity", "Requirements", "Message", "Notes"];
   const body = rows.map((r, i) => [rows.length - i, r.created_at, r.status, r.name, r.company, r.email, r.country, r.phone, r.product, r.quantity, r.requirements, r.message, r.notes].map(csvCell).join(","));
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", 'attachment; filename="enquiries.csv"');
-  res.send("﻿" + [head.map(csvCell).join(","), ...body].join("\r\n"));
+  res.send("\ufeff" + [head.map(csvCell).join(","), ...body].join("\r\n"));
 });
 
 adminRouter.get("/enquiries/:id", (req, res) => {
-  const r = db.prepare("SELECT enquiries.*, "+"(SELECT COUNT(*) FROM enquiries e2 WHERE e2.id <= enquiries.id) AS seq"+" FROM enquiries WHERE id = ?").get(Number(req.params.id)) as EnquiryRow | undefined;
+  const r = db.prepare(`SELECT enquiries.*, ${SEQ_SQL} FROM enquiries WHERE id = ?`).get(Number(req.params.id)) as EnquiryRow | undefined;
   if (!r) return void res.status(404).json({ error: "Enquiry not found" });
   res.json(mapEnquiry(r));
 });
@@ -225,27 +255,43 @@ adminRouter.patch("/enquiries/:id", (req, res) => {
   const p = z.object({ status: z.enum(STATUSES).optional(), notes: z.string().max(5000).optional() }).safeParse(req.body);
   if (!p.success) return void res.status(422).json({ error: "Invalid update" });
   const id = Number(req.params.id);
+  if (!db.prepare("SELECT 1 FROM enquiries WHERE id = ? AND deleted_at IS NULL").get(id)) return void res.status(404).json({ error: "Enquiry not found" });
   if (p.data.status) db.prepare("UPDATE enquiries SET status = ? WHERE id = ?").run(p.data.status, id);
   if (p.data.notes !== undefined) db.prepare("UPDATE enquiries SET notes = ? WHERE id = ?").run(p.data.notes, id);
   res.json({ ok: true });
 });
 
 adminRouter.post("/enquiries/:id/resend-email", async (req, res) => {
-  const row = db.prepare("SELECT * FROM enquiries WHERE id = ?").get(Number(req.params.id)) as (EnquiryForMail & { id: number }) | undefined;
+  const row = db.prepare("SELECT * FROM enquiries WHERE id = ? AND deleted_at IS NULL").get(Number(req.params.id)) as (EnquiryForMail & { id: number }) | undefined;
   if (!row) return void res.status(404).json({ error: "Enquiry not found" });
   const mail = await sendEnquiryEmail(row);
   db.prepare("UPDATE enquiries SET email_status = ?, email_error = ? WHERE id = ?").run(mail.status, mail.error ?? "", row.id);
   res.json({ ok: mail.status === "sent", emailStatus: mail.status, emailError: mail.error ?? "" });
 });
 
+// Deleting moves the enquiry to the recycle bin (nothing is removed yet; its attachment stays on disk).
 adminRouter.delete("/enquiries/:id", (req, res) => {
+  const r = db.prepare("UPDATE enquiries SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL").run(Number(req.params.id));
+  if (!r.changes) return void res.status(404).json({ error: "Enquiry not found" });
+  res.json({ ok: true, daysToRestore: TRASH_RETENTION_DAYS });
+});
+
+adminRouter.post("/enquiries/:id/restore", (req, res) => {
+  const r = db.prepare("UPDATE enquiries SET deleted_at = NULL WHERE id = ? AND deleted_at IS NOT NULL").run(Number(req.params.id));
+  if (!r.changes) return void res.status(404).json({ error: "Enquiry not found in Deleted" });
+  res.json({ ok: true });
+});
+
+// Empties one enquiry from the recycle bin right away. Only works on enquiries already in the bin.
+adminRouter.delete("/enquiries/:id/permanent", (req, res) => {
   const id = Number(req.params.id);
-  const r = db.prepare("SELECT attachment_file FROM enquiries WHERE id = ?").get(id) as { attachment_file: string | null } | undefined;
-  if (r?.attachment_file) {
-    const p = attachmentPath(r.attachment_file);
-    if (p) fs.unlinkSync(p);
-  }
+  const r = db.prepare("SELECT attachment_file FROM enquiries WHERE id = ? AND deleted_at IS NOT NULL").get(id) as { attachment_file: string | null } | undefined;
+  if (!r) return void res.status(404).json({ error: "Enquiry not found in Deleted" });
   db.prepare("DELETE FROM enquiries WHERE id = ?").run(id);
+  if (r.attachment_file) {
+    const p = attachmentPath(r.attachment_file);
+    if (p) try { fs.unlinkSync(p); } catch { /* already gone */ }
+  }
   res.json({ ok: true });
 });
 

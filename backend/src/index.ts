@@ -3,14 +3,30 @@ import cors from "cors";
 import helmet from "helmet";
 import multer from "multer";
 import { config } from "./config.js";
-import { publicUploadDir } from "./db.js";
+import { publicUploadDir, purgeExpiredEnquiries, purgeExpiredProducts } from "./db.js";
 import { publicRouter } from "./routes/public.js";
 import { adminRouter } from "./routes/admin.js";
 import { ensureAdmin, seedCatalogueIfEmpty } from "./seed.js";
 import { mailConfigured } from "./mail.js";
+import { fillMissingProductCodes } from "./products.js";
 
+{ const n = fillMissingProductCodes(); if (n) console.log(`[codes] Gave ${n} product(s) without a code the next AFS number.`); }
 if (seedCatalogueIfEmpty()) console.log("[seed] Loaded the catalogue (categories, products, images) into the new database.");
 ensureAdmin();
+
+// Recycle bin: enquiries deleted more than 30 days ago are removed for good (at startup, then hourly).
+const purge = () => {
+  try {
+    const p = purgeExpiredProducts();
+    if (p) console.log(`[trash] Permanently removed ${p} product(s) deleted more than 30 days ago.`);
+    const n = purgeExpiredEnquiries();
+    if (n) console.log(`[trash] Permanently removed ${n} enquiry(ies) deleted more than 30 days ago.`);
+  } catch (e) {
+    console.error("[trash] purge failed:", e);
+  }
+};
+purge();
+setInterval(purge, 60 * 60 * 1000).unref();
 
 const app = express();
 app.set("trust proxy", config.trustProxy);
