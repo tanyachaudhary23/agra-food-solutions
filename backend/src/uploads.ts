@@ -11,6 +11,7 @@ const storage = multer.memoryStorage();
 
 export const imageUpload = multer({ storage, limits: { fileSize: 10 * MB, files: 1 } }).single("file");
 export const documentUpload = multer({ storage, limits: { fileSize: 10 * MB, files: 1 } }).single("file");
+export const importUpload = multer({ storage, limits: { fileSize: 5 * MB, files: 1 } }).single("file");
 export const ENQUIRY_MAX_BYTES = 5 * MB;
 export const enquiryUpload = multer({ storage, limits: { fileSize: ENQUIRY_MAX_BYTES, files: 1, fields: 20 } }).single("attachment");
 

@@ -6,9 +6,10 @@ import { z } from "zod";
 import { db, slugify, TRASH_RETENTION_DAYS, uniqueSlug } from "../db.js";
 import { sendEnquiryEmail, type EnquiryForMail } from "../mail.js";
 import { requireAdmin, signToken, type AdminRow } from "../auth.js";
-import { createProduct, getProductById, listDeletedProducts, listProducts, productSchema, updateProduct } from "../products.js";
+import { nextProductCode, createProduct, getProductById, listDeletedProducts, listProducts, productSchema, updateProduct } from "../products.js";
 import { getSettings, saveSettings, settingsSchema } from "../settings.js";
-import { documentUpload, imageUpload, savePublicImage, savePublicPdf } from "../uploads.js";
+import { documentUpload, imageUpload, importUpload, savePublicImage, savePublicPdf } from "../uploads.js";
+import { applyPlan, buildPlan, buildProblemsFile, buildTemplate, ImportError, publicPlan, readGrid } from "../import.js";
 import { attachmentPath } from "./public.js";
 
 export const adminRouter = Router();
@@ -131,7 +132,55 @@ adminRouter.delete("/categories/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Product import (Excel / CSV) ----------
+// Step 1 "preview" saves nothing; step 2 "confirm" re-reads the same file and saves the good rows. See import.ts.
+const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+adminRouter.get("/products/import/template.xlsx", async (_req, res) => {
+  res.setHeader("Content-Type", XLSX);
+  res.setHeader("Content-Disposition", 'attachment; filename="product-import-template.xlsx"');
+  res.send(await buildTemplate());
+});
+// The same sheet pre-filled with the current products: the easy way to change many existing products.
+adminRouter.get("/products/import/current.xlsx", async (_req, res) => {
+  res.setHeader("Content-Type", XLSX);
+  res.setHeader("Content-Disposition", 'attachment; filename="my-current-products.xlsx"');
+  res.send(await buildTemplate(true));
+});
+
+const importHandler = (confirm: boolean) => [
+  importUpload,
+  async (req: import("express").Request, res: import("express").Response) => {
+    if (!req.file) return void res.status(400).json({ error: "Choose an Excel (.xlsx) or CSV file first." });
+    try {
+      const plan = buildPlan(await readGrid(req.file.buffer)); // everything after this await is synchronous: the check and the save see the same catalogue
+      if (!confirm) return void res.json(publicPlan(plan));
+      const done = applyPlan(plan);
+      res.json({ ok: true, ...done, skipped: plan.summary.errors + plan.summary.unchanged + plan.summary.skipped, summary: plan.summary });
+    } catch (e) {
+      if (e instanceof ImportError) return void res.status(422).json({ error: e.message });
+      throw e;
+    }
+  },
+] as const;
+adminRouter.post("/products/import/preview", ...importHandler(false));
+adminRouter.post("/products/import/confirm", ...importHandler(true));
+// Only the rows with problems, with the bad cells highlighted and a note on what to fix: fix them and upload again.
+adminRouter.post("/products/import/problems", importUpload, async (req, res) => {
+  if (!req.file) return void res.status(400).json({ error: "Choose a file first." });
+  try {
+    const plan = buildPlan(await readGrid(req.file.buffer));
+    if (!plan.summary.errors) return void res.status(422).json({ error: "No problems were found in this file." });
+    res.setHeader("Content-Type", XLSX);
+    res.setHeader("Content-Disposition", 'attachment; filename="rows-to-fix.xlsx"');
+    res.send(await buildProblemsFile(plan));
+  } catch (e) {
+    if (e instanceof ImportError) return void res.status(422).json({ error: e.message });
+    throw e;
+  }
+});
+
 // ---------- Products ----------
+adminRouter.get("/products/next-code", (_req, res) => res.json({ code: nextProductCode() }));
 adminRouter.get("/products", (req, res) => res.json(req.query.view === "deleted" ? listDeletedProducts() : listProducts(false)));
 
 adminRouter.get("/products/:id", (req, res) => {

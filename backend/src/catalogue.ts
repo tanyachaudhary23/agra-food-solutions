@@ -37,6 +37,8 @@ const CARD_H = 160;
 const OPENER_H = 58;
 const TOP = 84; // first content line below the running header
 const LIMIT = PAGE_H - 54; // lowest content line above the footer
+/** Bump when the layout changes, so every server and browser drops the previous PDF. */
+const LAYOUT_VERSION = 3;
 const LOGO_FILE = fileURLToPath(new URL("../assets/logo.png", import.meta.url));
 
 /** The built-in PDF fonts only cover Latin text, so common typographic characters are mapped and anything else is dropped. */
@@ -438,7 +440,8 @@ let inflight: { key: string; promise: Promise<Buffer> } | null = null;
 const cacheKey = () =>
   crypto
     .createHash("sha1")
-    .update(JSON.stringify([listProducts(true), db.prepare("SELECT * FROM categories ORDER BY id").all(), getSettings(), fs.existsSync(LOGO_FILE), new Date().toISOString().slice(0, 7)]))
+    // The website address and the generator version are part of the key: changing either must never serve an older PDF (e.g. one without links).
+    .update(JSON.stringify([LAYOUT_VERSION, config.frontendOrigins[0] ?? "", config.isProd, listProducts(true), db.prepare("SELECT * FROM categories ORDER BY id").all(), getSettings(), fs.existsSync(LOGO_FILE), new Date().toISOString().slice(0, 7)]))
     .digest("hex");
 
 /** Returns the catalogue PDF, rebuilding it only when the underlying data changed. */

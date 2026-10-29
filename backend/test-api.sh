@@ -38,6 +38,20 @@ check "delete forever needs the bin first" "$(code -X DELETE -H "$H" $API/api/ad
 code -X DELETE -H "$H" $API/api/admin/products/$PID >/dev/null
 check "delete product forever" "$(code -X DELETE -H "$H" $API/api/admin/products/$PID/permanent)" 200
 
+# product import (Excel / CSV): template, preview saves nothing, confirm saves the good rows
+check "import template downloads" "$(code -H "$H" $API/api/admin/products/import/template.xlsx)" 200
+check "import needs login" "$(code -X POST $API/api/admin/products/import/preview)" 401
+IMPCAT=$(curl -s -H "$H" $API/api/admin/categories | json "d[0]['name']")
+printf 'Name,Category,Code\nImport Test Widget,"%s",\n,"%s",\nBad Category Row,No Such Category,\n' "$IMPCAT" "$IMPCAT" > /tmp/afs-import.csv
+PV=$(curl -s -X POST -H "$H" -F file=@/tmp/afs-import.csv $API/api/admin/products/import/preview)
+check "import preview: 1 new, 2 errors" "$(echo "$PV" | json "str(d['summary']['created'])+'/'+str(d['summary']['errors'])")" "1/2"
+check "import preview saves nothing" "$(curl -s -H "$H" $API/api/admin/products | json "len([p for p in d if p['name']=='Import Test Widget'])")" 0
+check "import confirm" "$(curl -s -X POST -H "$H" -F file=@/tmp/afs-import.csv $API/api/admin/products/import/confirm | json "d['created']")" 1
+IPID=$(curl -s -H "$H" $API/api/admin/products | json "[p['id'] for p in d if p['name']=='Import Test Widget'][0]")
+check "imported product is a Draft" "$(curl -s -H "$H" $API/api/admin/products/$IPID | json "d['status']")" draft
+check "spreadsheet (non-file) refused" "$(code -X POST -H "$H" -F file=@/tmp/afs-test.pdf $API/api/admin/products/import/preview)" 422
+curl -s -o /dev/null -X DELETE -H "$H" $API/api/admin/products/$IPID; curl -s -o /dev/null -X DELETE -H "$H" $API/api/admin/products/$IPID/permanent
+
 # category with products cannot be deleted
 check "non-empty category protected" "$(code -X DELETE -H "$H" $API/api/admin/categories/$CAT)" 409
 

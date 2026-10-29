@@ -56,6 +56,7 @@ export default function Products() {
   return (
     <>
       <PageTitle title="Products">
+        <Link href="/admin/products/import" className="btn btn-outline py-2">Import</Link>
         <Link href="/admin/products/new" className="btn btn-forest py-2">Add product</Link>
       </PageTitle>
       <div className="mb-4 flex gap-2" role="tablist">

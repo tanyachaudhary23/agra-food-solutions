@@ -29,10 +29,15 @@ export default function ProductEditor() {
   const [f, setF] = useState<Form>(empty);
   const [cats, setCats] = useState<Cat[]>([]);
   const [loaded, setLoaded] = useState(isNew);
+  const [nextCode, setNextCode] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const toast = useToast();
   const confirm = useConfirm();
+
+  useEffect(() => {
+    adminFetch<{ code: string }>("/products/next-code").then((r) => setNextCode(r.code)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     adminFetch<Cat[]>("/categories").then((c) => {
@@ -197,7 +202,7 @@ export default function ProductEditor() {
       <Card title="Advanced">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Web address ending (slug)" hint="Leave blank to create it from the name. Changing it breaks old links."><input className="field" value={f.slug} onChange={(e) => set("slug", e.target.value)} /></Field>
-          <Field label="Internal product code"><input className="field" value={f.code} onChange={(e) => set("code", e.target.value)} /></Field>
+          <Field label="Internal product code" hint={nextCode ? `Leave blank and it becomes ${nextCode} when you save.` : "Leave blank to number it automatically when you save."}><input className="field" placeholder={nextCode} value={f.code} onChange={(e) => set("code", e.target.value)} /></Field>
           <Field label="Search title (SEO)" hint="Leave blank to use the product name."><input className="field" maxLength={120} value={f.seoTitle} onChange={(e) => set("seoTitle", e.target.value)} /></Field>
           <Field label="Display order" hint="Lower numbers appear first. 0 = put at the end."><input type="number" min={0} className="field" value={f.sortOrder} onChange={(e) => set("sortOrder", Number(e.target.value) || 0)} /></Field>
           <div className="sm:col-span-2"><Field label="Search description (SEO)"><textarea className="field" rows={2} maxLength={300} value={f.seoDescription} onChange={(e) => set("seoDescription", e.target.value)} /></Field></div>

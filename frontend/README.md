@@ -4,7 +4,7 @@ The public website and the admin panel for Agra Food Solutions Pvt. Ltd. It is a
 
 - **Stack:** Node.js 20.9 or newer (22 recommended), Next.js 16 and React 19 (App Router), TypeScript, Tailwind CSS. Fonts are bundled (nothing is loaded from Google).
 - **Public pages:** Home, Products (search and category filter), Product detail, About, Industries, Export Capabilities, Contact / Request a Quote, Privacy, Terms, sitemap, robots.
-- **Admin panel (`/admin`):** dashboard, enquiries (status, notes, attachments, CSV export), products (add, edit, photos, specifications, PDFs, drafts), categories, settings (all company details), change password.
+- **Admin panel (`/admin`):** dashboard, enquiries (status, notes, attachments, CSV export), products (add, edit, photos, specifications, PDFs, drafts, bulk import from Excel or CSV with a preview before saving), categories, settings (all company details), change password.
 
 ## 1. Run it on your computer
 

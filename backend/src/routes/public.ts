@@ -42,7 +42,7 @@ publicRouter.get("/catalogue.pdf", catalogueLimiter, async (req, res) => {
     const { pdf, key } = await getCataloguePdf();
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="Agra-Food-Solutions-Catalogue.pdf"');
-    res.setHeader("Cache-Control", "public, max-age=300");
+    res.setHeader("Cache-Control", "public, no-cache"); // always revalidate: an unchanged catalogue costs only a 304
     res.setHeader("ETag", `"${key}"`);
     if (req.headers["if-none-match"] === `"${key}"`) return void res.status(304).end();
     res.send(pdf);

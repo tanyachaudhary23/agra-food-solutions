@@ -47,10 +47,7 @@ export async function adminFetch<T = unknown>(path: string, opts: Opts = {}): Pr
   return data as T;
 }
 
-/** Downloads a protected file (the browser cannot send the login header on a normal link). */
-export async function adminDownload(path: string, filename: string) {
-  const res = await raw(path);
-  if (!res.ok) throw new Error("Download failed.");
+async function saveBlob(res: Response, filename: string) {
   const url = URL.createObjectURL(await res.blob());
   const a = document.createElement("a");
   a.href = url;
@@ -59,6 +56,20 @@ export async function adminDownload(path: string, filename: string) {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+/** Downloads a protected file (the browser cannot send the login header on a normal link). */
+export async function adminDownload(path: string, filename: string) {
+  const res = await raw(path);
+  if (!res.ok) throw new Error("Download failed.");
+  await saveBlob(res, filename);
+}
+
+/** Sends a form (e.g. an uploaded spreadsheet) and saves the file the server answers with. */
+export async function adminDownloadForm(path: string, form: FormData, filename: string) {
+  const res = await raw(path, { method: "POST", form });
+  if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { error?: string }).error || "Download failed.");
+  await saveBlob(res, filename);
 }
 
 export async function uploadFile(kind: "image" | "document", file: File): Promise<string> {
