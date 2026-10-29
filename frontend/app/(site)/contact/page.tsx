@@ -28,7 +28,7 @@ export default async function Contact({ searchParams }: { searchParams: Promise<
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <PageHero eyebrow="Contact" title="Request a quote." intro="Tell us what you need. Include drawings or specifications for a faster, more accurate response." />
+      <PageHero eyebrow="Contact" title="Request a quote." intro="Tell us what you need. Include drawings or specifications for a faster, more accurate response." image="/home/contact-network.webp" imageAlt="" />
       <section className="container-page grid gap-14 py-16 lg:grid-cols-3">
         <div id="quote" className="scroll-mt-28 lg:col-span-2">
           <QuoteForm products={products} initialProduct={sp.product} initialMessage={sp.message?.slice(0, 500)} />

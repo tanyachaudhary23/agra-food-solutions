@@ -62,3 +62,14 @@
   .admin-enter, .admin-pop, .admin-fade { animation: none; }
   .skeleton { animation: none; }
 }
+
+/* Slowly drifting featured products (home page). Two identical halves, moved left by exactly one half, then looped. */
+.marquee { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent); }
+.marquee-track { display: flex; width: max-content; animation: marquee-move var(--marquee-seconds, 80s) linear infinite; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee-move { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee-track { animation: none; }
+  .marquee-half[aria-hidden="true"] { display: none; }
+}

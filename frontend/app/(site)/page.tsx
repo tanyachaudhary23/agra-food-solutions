@@ -1,4 +1,5 @@
 import Image from "next/image";
+import FeaturedMarquee from "@/components/FeaturedMarquee";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
@@ -29,7 +30,7 @@ function Heading({ eyebrow, title, light = false }: { eyebrow: string; title: st
 export default async function Home() {
   const [products, categories] = await Promise.all([getAllProducts(), getCategories()]);
   const all = products ?? [];
-  const featured = all.filter((p) => p.featured).slice(0, 3);
+  const featured = all.filter((p) => p.featured).slice(0, 12);
   const total = all.length;
   const catImage = (slug: string) => all.find((p) => p.category === slug && p.images[0])?.images[0];
 
@@ -178,10 +179,8 @@ export default async function Home() {
                 Full catalogue <ArrowRight size={16} />
               </Link>
             </div>
-            <div className="mt-14 grid gap-6 md:grid-cols-3">
-              {featured.map((p, i) => <div key={p.id} className="reveal-zoom" style={delay(i)}><ProductCard product={p} /></div>)}
-            </div>
           </div>
+          <div className="mt-14"><FeaturedMarquee products={featured} /></div>
         </section>
       )}
 

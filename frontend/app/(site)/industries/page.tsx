@@ -15,7 +15,7 @@ export default async function Industries() {
   const count = (slug: string) => (products ? products.filter((p) => (p.industries ?? []).includes(slug)).length : null);
   return (
     <>
-      <PageHero eyebrow="Industries" title="Industries and applications." intro="Spare parts and accessories for plants that process grain, as listed in our catalogue." />
+      <PageHero eyebrow="Industries" title="Industries and applications." intro="Spare parts and accessories for plants that process grain, as listed in our catalogue." image="/home/industries-silos.webp" imageAlt="Grain storage silos and conveyors (illustrative image)" />
       <section className="container-page grid gap-6 py-20 md:grid-cols-2 lg:grid-cols-3">
         {industries.map(([t, d, slug]) => {
           const n = count(slug);

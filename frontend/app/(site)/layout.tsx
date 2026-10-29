@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import Reveal from "@/components/Reveal";
 import ConsentAnalytics from "@/components/ConsentAnalytics";
 import { QuoteListProvider } from "@/components/QuoteList";
+import CatalogueMemory from "@/components/CatalogueMemory";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 // Content comes from the backend, so pages are rendered on request (API responses are cached for 30 seconds).
@@ -15,6 +16,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         Skip to content
       </a>
       <Header />
+      <CatalogueMemory />
       <main id="main">{children}</main>
       <Footer />
       <WhatsAppButton />

@@ -1,11 +1,14 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import CatalogueDownload from "@/components/CatalogueDownload";
 import ProductCard from "./ProductCard";
 import type { Category, Product } from "@/lib/types";
 import { industries } from "@/lib/site";
+
+// Lives until the next full page load, so it tells "first page of this load" (a refresh) from a later visit.
+let firstMountOfThisLoad = true;
 
 export default function Catalogue({ products, categories }: { products: Product[]; categories: Category[] }) {
   const router = useRouter();
@@ -32,6 +35,56 @@ export default function Catalogue({ products, categories }: { products: Product[
   const PAGE = 24;
   const [shown, setShown] = useState(PAGE);
   useEffect(() => setShown(PAGE), [active, activeIndustry, q]);
+
+  // Remember how many products were loaded and where the visitor had scrolled, so a refresh (or coming back from a product page)
+  // returns to the same place instead of the top of the list.
+  const STORE = "afs-catalogue-view";
+  const filterKey = params.toString();
+  const restoreY = useRef<number | null>(null);
+  const [restored, setRestored] = useState(false);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(STORE) || "null") as { key: string; shown: number; y: number; at: number } | null;
+      const nav = (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined)?.type;
+      const refreshed = firstMountOfThisLoad && (nav === "reload" || nav === "back_forward");
+      // Set when a product is opened from this list; cleared when the visitor goes anywhere other than the products pages (see CatalogueMemory).
+      const wentBack = sessionStorage.getItem(STORE + "-back") === "1";
+      sessionStorage.removeItem(STORE + "-back");
+      firstMountOfThisLoad = false;
+      if (saved && saved.key === filterKey && Date.now() - saved.at < 6 * 3600 * 1000 && (refreshed || wentBack)) {
+        setShown(Math.max(PAGE, Math.min(saved.shown, 600)));
+        restoreY.current = saved.y;
+      }
+    } catch { /* storage blocked: start from the top */ }
+    setRestored(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!restored || restoreY.current === null) return;
+    const y = restoreY.current;
+    restoreY.current = null;
+    // Images above the target are still loading and the page grows as they arrive, so keep nudging to the saved spot for a moment
+    // (and stop at once if the visitor scrolls themselves).
+    let stop = false;
+    const halt = () => { stop = true; };
+    window.addEventListener("wheel", halt, { once: true, passive: true });
+    window.addEventListener("touchstart", halt, { once: true, passive: true });
+    const started = Date.now();
+    const step = () => {
+      if (stop || Date.now() - started > 3000) return;
+      if (Math.abs(window.scrollY - y) > 2) window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior });
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [restored, shown]);
+  useEffect(() => {
+    if (!restored) return;
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const save = () => { try { sessionStorage.setItem(STORE, JSON.stringify({ key: filterKey, shown, y: window.scrollY, at: Date.now() })); } catch { /* ignore */ } };
+    const onScroll = () => { clearTimeout(t); t = setTimeout(save, 150); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { clearTimeout(t); window.removeEventListener("scroll", onScroll); };
+  }, [restored, filterKey, shown]);
 
   const setParam = (key: "category" | "industry", slug: string) => {
     const next = new URLSearchParams(params.toString());
@@ -94,7 +147,7 @@ export default function Catalogue({ products, categories }: { products: Product[
           </div>
         </div>
       ) : (
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" onClickCapture={(e) => { if ((e.target as HTMLElement).closest("a")) { try { sessionStorage.setItem(STORE + "-back", "1"); } catch { /* ignore */ } } }}>
           {results.slice(0, shown).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} />)}
         </div>
       )}

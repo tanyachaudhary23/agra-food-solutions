@@ -27,7 +27,7 @@ export default async function About() {
   ];
   return (
     <>
-      <PageHero eyebrow="About us" title="Spare parts for the milling industry." intro={`${site.name} (AFS) manufactures and supplies spare parts for grain milling plants and exports to buyers worldwide.`} />
+      <PageHero eyebrow="About us" title="Spare parts for the milling industry." intro={`${site.name} (AFS) manufactures and supplies spare parts for grain milling plants and exports to buyers worldwide.`} image="/home/about-mesh.webp" imageAlt="" />
       <section className="container-page grid gap-12 py-20 lg:grid-cols-3">
         <div className="space-y-10 lg:col-span-2">
           {blocks.map(([t, d]) => (

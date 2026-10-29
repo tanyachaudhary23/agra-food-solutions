@@ -14,7 +14,7 @@ export default async function Products() {
   const [products, categories] = await Promise.all([getAllProducts(), getCategories()]);
   return (
     <>
-      <PageHero eyebrow="Catalogue" title="Products." intro="Search by name or filter by category, then request a quotation for the parts you need." />
+      <PageHero eyebrow="Catalogue" title="Products." intro="Search by name or filter by category, then request a quotation for the parts you need." image="/home/hero-roller.webp" imageAlt="Precision-ground steel roller (illustrative image)" />
       <section className="container-page py-14">
         {products === null ? (
           <Unavailable what="The catalogue" />

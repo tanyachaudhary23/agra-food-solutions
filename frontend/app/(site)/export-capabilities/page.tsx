@@ -30,7 +30,7 @@ export default async function Export() {
   const shown = terms.filter(([, v]) => v);
   return (
     <>
-      <PageHero eyebrow="Export capabilities" title="From enquiry to shipment, coordinated." intro="How we handle overseas enquiries and orders." />
+      <PageHero eyebrow="Export capabilities" title="From enquiry to shipment, coordinated." intro="How we handle overseas enquiries and orders." image="/home/export-shipping.webp" imageAlt="Crated machinery beside an open shipping container (illustrative image)" />
       <section className="container-page py-20">
         <ol className="grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-2 lg:grid-cols-3">
           {steps.map(([t, d], i) => (
