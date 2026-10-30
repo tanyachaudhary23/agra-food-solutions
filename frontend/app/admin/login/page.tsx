@@ -33,16 +33,30 @@ export default function Login() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5">
-      <h1 className="text-3xl font-bold">Admin sign in</h1>
-      <p className="mt-2 text-sm text-charcoal/70">Agra Food Solutions website management.</p>
-      {signedOut && <div className="mt-6"><Notice kind="success">{signedOut}</Notice></div>}
-      <form onSubmit={submit} className="mt-8 space-y-5">
-        <Field label="Email"><input name="email" type="email" autoComplete="username" required className="field" /></Field>
-        <Field label="Password"><input name="password" type="password" autoComplete="current-password" required className="field" /></Field>
-        <Notice kind="error">{err}</Notice>
-        <button className="btn btn-forest w-full" disabled={busy}><BusyLabel busy={busy} busyText="Signing in…">Sign in</BusyLabel></button>
-      </form>
+    <main className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+      <aside className="a-login-art relative hidden flex-col justify-between p-14 text-[#F4F0E8] lg:flex">
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#F4F0E8]/10 font-heading text-sm font-extrabold tracking-wide text-[color:var(--a-accent)] ring-1 ring-[#F4F0E8]/20">AFS</span>
+        <div className="a-rise max-w-md">
+          <p className="a-eyebrow !text-[color:var(--a-accent)]">Admin workspace</p>
+          <h1 className="mt-4 font-heading text-[40px] font-bold leading-[1.1] !text-[#F4F0E8]">Manage the catalogue, enquiries and website content in one place.</h1>
+          <p className="mt-5 text-[15px] leading-relaxed text-[#F4F0E8]/70">Agra Food Solutions Pvt. Ltd.: spare parts for roller flour mills and grain milling.</p>
+        </div>
+        <p className="text-xs text-[#F4F0E8]/50">Private area. Authorised staff only.</p>
+      </aside>
+      <section className="flex items-center justify-center px-5 py-12">
+        <div className="a-rise w-full max-w-[380px]">
+          <span className="mb-8 grid h-11 w-11 place-items-center rounded-xl bg-[color:var(--a-brand)] font-heading text-sm font-extrabold tracking-wide text-[color:var(--a-accent)] lg:hidden">AFS</span>
+          <h2 className="text-[30px] font-bold">Sign in</h2>
+          <p className="mt-1.5 text-[14.5px] text-[color:var(--a-ink2)]">Use your admin email and password.</p>
+          {signedOut && <div className="mt-6"><Notice kind="success">{signedOut}</Notice></div>}
+          <form onSubmit={submit} className="mt-8 space-y-5">
+            <Field label="Email"><input name="email" type="email" autoComplete="username" required className="a-input" /></Field>
+            <Field label="Password"><input name="password" type="password" autoComplete="current-password" required className="a-input" /></Field>
+            <Notice kind="error">{err}</Notice>
+            <button className="a-btn a-btn-primary w-full !h-11" disabled={busy}><BusyLabel busy={busy} busyText="Signing in…">Sign in</BusyLabel></button>
+          </form>
+        </div>
+      </section>
     </main>
   );
 }

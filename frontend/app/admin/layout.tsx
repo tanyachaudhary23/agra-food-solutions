@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdminShell from "@/components/admin/AdminShell";
+import "./admin.css";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 

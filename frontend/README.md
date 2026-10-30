@@ -102,3 +102,12 @@ Things that are in the code (ask a developer, or edit the file):
 | Product photos are broken | Backend `PUBLIC_BASE_URL` is still `localhost`. |
 | Changed an environment variable and nothing happened | `NEXT_PUBLIC_*` values need a rebuild. |
 | Admin keeps returning to the login page | The sign-in lasts 8 hours; sign in again. If it happens immediately, the backend `JWT_SECRET` changed or the API address is wrong. |
+
+## Admin panel design
+
+The admin has its own design system, separate from the public website:
+
+- `app/admin/admin.css` holds the admin tokens (colours, radius, shadows, motion) and the small `a-` component classes (`a-btn`, `a-input`, `a-section`, `a-row`, `a-drawer`...). Every rule lives under the `.adm` root, so it cannot change the public pages. It is imported only by `app/admin/layout.tsx`.
+- `components/admin/AdminShell.tsx` is the collapsible sidebar, mobile menu, breadcrumbs and sign-out.
+- `components/admin/ui.tsx` has the shared pieces: `Section`, `Field`, `PageTitle`, `Drawer`, `EmptyState`, skeletons, toasts, the confirm dialog and `useUnsavedChanges` (warns before leaving a form with unsaved changes).
+- To restyle the admin, change the variables at the top of `admin.css`. The public site uses `app/globals.css` and `tailwind.config.ts`, which were not touched.

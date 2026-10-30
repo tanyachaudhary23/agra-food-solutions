@@ -79,4 +79,45 @@ export async function uploadFile(kind: "image" | "document", file: File): Promis
   return url;
 }
 
+/** Same as uploadFile, but reports progress (0 to 100) while the file is sent. */
+export function uploadFileWithProgress(kind: "image" | "document", file: File, onProgress: (pct: number) => void): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_URL}/api/admin/upload/${kind}`);
+    const token = tokenStore.get();
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(Math.min(99, Math.round((e.loaded / e.total) * 100))); };
+    xhr.onerror = () => reject(new Error("Cannot reach the server. Check your connection and that the backend is running."));
+    xhr.onload = () => {
+      let data: { url?: string; error?: string } = {};
+      try { data = JSON.parse(xhr.responseText); } catch { /* not JSON */ }
+      if (xhr.status === 401) {
+        tokenStore.clear();
+        window.location.href = "/admin/login?expired=1";
+        return reject(new Error("Please sign in again."));
+      }
+      if (xhr.status >= 200 && xhr.status < 300 && data.url) { onProgress(100); resolve(data.url); }
+      else reject(new Error(data.error || `Upload failed (${xhr.status})`));
+    };
+    const form = new FormData();
+    form.append("file", file);
+    xhr.send(form);
+  });
+}
+
+/** "5 min ago", "yesterday", or the date for older items. `iso` is the server's UTC timestamp without a zone. */
+export function timeAgo(iso: string): string {
+  const t = new Date(iso.replace(" ", "T") + "Z").getTime();
+  if (Number.isNaN(t)) return "";
+  const mins = Math.round((Date.now() - t) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  return new Date(t).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
 export const STATUS_LABEL: Record<string, string> = { new: "New", in_progress: "In progress", quoted: "Quoted", closed: "Closed" };
