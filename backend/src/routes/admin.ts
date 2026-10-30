@@ -11,6 +11,7 @@ import { getSettings, saveSettings, settingsSchema } from "../settings.js";
 import { documentUpload, imageUpload, importUpload, savePublicImage, savePublicPdf } from "../uploads.js";
 import { applyPlan, buildPlan, buildProblemsFile, buildTemplate, ImportError, publicPlan, readGrid } from "../import.js";
 import { attachmentPath } from "./public.js";
+import { deleteUnusedFiles, findUnusedFiles } from "../unused.js";
 
 export const adminRouter = Router();
 
@@ -88,6 +89,14 @@ function handleUpload(kind: "image" | "document") {
 }
 adminRouter.post("/upload/image", ...handleUpload("image"));
 adminRouter.post("/upload/document", ...handleUpload("document"));
+
+// Pictures and PDFs no product uses any more (replaced or removed). Listing changes nothing; deleting only removes files
+// that are unused right now, more than a day old, and not used by any product including those in the recycle bin.
+adminRouter.get("/unused-files", (_req, res) => {
+  const files = findUnusedFiles();
+  res.json({ count: files.length, bytes: files.reduce((n, f) => n + f.bytes, 0), files: files.slice(0, 200) });
+});
+adminRouter.post("/unused-files/delete", (_req, res) => res.json({ ok: true, ...deleteUnusedFiles() }));
 
 // ---------- Categories ----------
 const categorySchema = z.object({
