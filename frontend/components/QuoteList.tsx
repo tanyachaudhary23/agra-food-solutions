@@ -133,17 +133,33 @@ export const useQuoteList = () => {
 };
 export { MAX_ITEMS };
 
-export function AddToQuoteButton({ product, className = "" }: { product: { slug: string; name: string }; className?: string }) {
+export function AddToQuoteButton({ product, className = "", iconOnly = false }: { product: { slug: string; name: string }; className?: string; iconOnly?: boolean }) {
   const { has, add, remove, items } = useQuoteList();
   const inList = has(product.slug);
   const full = !inList && items.length >= MAX_ITEMS;
+  const title = full ? `Your list is full (${MAX_ITEMS} products). Send this enquiry first.` : inList ? "Remove from quote list" : "Add to quote list";
+  if (iconOnly) {
+    return (
+      <button
+        type="button"
+        disabled={full}
+        aria-pressed={inList}
+        title={title}
+        onClick={() => (inList ? remove(product.slug) : add(product))}
+        className={`flex h-10 w-10 items-center justify-center rounded-full shadow-soft backdrop-blur transition-all duration-300 ease-out-soft disabled:opacity-50 ${inList ? "bg-forest text-ivory" : "bg-white/90 text-forest hover:bg-forest hover:text-ivory"} ${className}`}
+      >
+        {inList ? <Check size={18} aria-hidden /> : <Plus size={18} aria-hidden />}
+        <span className="sr-only">{inList ? `Remove ${product.name} from quote list` : `Add ${product.name} to quote list`}</span>
+      </button>
+    );
+  }
   return (
     <button
       type="button"
       disabled={full}
       aria-pressed={inList}
       onClick={() => (inList ? remove(product.slug) : add(product))}
-      title={full ? `Your list is full (${MAX_ITEMS} products). Send this enquiry first.` : undefined}
+      title={full ? title : undefined}
       className={className || "inline-flex items-center gap-1 font-heading text-sm font-semibold text-forest hover:text-brass-700 disabled:opacity-50"}
     >
       {inList ? <><Check size={14} aria-hidden /> In quote list</> : <><Plus size={14} aria-hidden /> Add to quote list</>}

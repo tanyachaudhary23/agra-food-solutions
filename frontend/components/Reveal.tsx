@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-const SELECTOR = ".reveal, .reveal-left, .reveal-right, .reveal-zoom";
+const SELECTOR = ".reveal, .reveal-left, .reveal-right, .reveal-zoom, .reveal-img";
 
 /**
  * Shows panels as they scroll into view and hides them again when they scroll away, so the animation

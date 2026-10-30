@@ -26,7 +26,7 @@ export default function ImagePlaceholder({ src, alt, label = "Image coming soon"
     <div
       role="img"
       aria-label={`${alt} (no image yet)`}
-      className={`relative flex items-end overflow-hidden bg-grey-industrial ${ratio}`}
+      className={`relative flex items-end overflow-hidden bg-sand ${ratio}`}
       style={{ backgroundImage: "repeating-linear-gradient(135deg, transparent 0 22px, rgba(23,43,41,.06) 22px 23px)" }}
     >
       <span className="m-3 font-heading text-[10px] font-semibold uppercase tracking-eyebrow text-forest/60">{label}</span>

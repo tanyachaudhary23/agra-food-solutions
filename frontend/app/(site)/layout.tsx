@@ -5,17 +5,19 @@ import ConsentAnalytics from "@/components/ConsentAnalytics";
 import { QuoteListProvider } from "@/components/QuoteList";
 import CatalogueMemory from "@/components/CatalogueMemory";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import { getCategories } from "@/lib/products";
 
 // Content comes from the backend, so pages are rendered on request (API responses are cached for 30 seconds).
 export const dynamic = "force-dynamic";
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const categories = await getCategories();
   return (
     <QuoteListProvider>
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-brass focus:px-4 focus:py-2">
         Skip to content
       </a>
-      <Header />
+      <Header categories={categories.map((c) => ({ slug: c.slug, name: c.name }))} />
       <CatalogueMemory />
       <main id="main">{children}</main>
       <Footer />

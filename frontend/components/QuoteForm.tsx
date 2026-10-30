@@ -68,9 +68,9 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
 
   if (status === "success") {
     return (
-      <div role="status" className="border border-forest bg-white p-8 text-center">
+      <div role="status" className="rounded-panel bg-sand p-10 text-center">
         <CheckCircle2 className="mx-auto text-forest" size={40} aria-hidden />
-        <h3 className="mt-4 text-2xl font-bold">Thank you. Your enquiry has been sent.</h3>
+        <h3 className="mt-4 font-heading text-subtitle font-semibold">Thank you. Your enquiry has been sent.</h3>
         <p className="mt-2 text-charcoal/80">We will review your requirements and respond by email.</p>
         <button className="btn btn-outline mt-6" onClick={() => setStatus("idle")}>Send another enquiry</button>
       </div>
@@ -82,7 +82,7 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
   const Err = ({ k }: { k: keyof FieldErrors }) => (err(k) ? <p id={`${k}-err`} className="mt-1 text-sm text-red-800">{err(k)}</p> : null);
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-5 sm:grid-cols-2" aria-busy={status === "submitting"}>
+    <form onSubmit={onSubmit} noValidate className="grid gap-6 sm:grid-cols-2" aria-busy={status === "submitting"}>
 
       <div><label className="label" htmlFor="name">Name *</label><input id="name" name="name" autoComplete="name" required className="field" {...f("name")} /><Err k="name" /></div>
       <div><label className="label" htmlFor="company">Company *</label><input id="company" name="company" autoComplete="organization" required className="field" {...f("company")} /><Err k="company" /></div>
@@ -92,7 +92,7 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
       {list.items.length === 0 && <div><label className="label" htmlFor="quantity">Quantity</label><input id="quantity" name="quantity" className="field" {...f("quantity")} /></div>}
 
       {list.items.length > 0 ? (
-        <div className="sm:col-span-2 border border-forest/20 bg-white p-4" aria-labelledby="quote-list-title">
+        <div className="rounded-card bg-sand p-5 sm:col-span-2" aria-labelledby="quote-list-title">
           <div className="flex items-center justify-between gap-3">
             <h3 id="quote-list-title" className="font-heading text-sm font-semibold uppercase tracking-wider text-forest">Your quote list ({list.items.length})</h3>
             <button type="button" onClick={list.clear} className="text-sm font-semibold text-forest underline hover:text-brass-700">Clear list</button>
@@ -123,7 +123,7 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
 
       <div className="sm:col-span-2">
         <label className="label" htmlFor="attachment">Attachment (drawings or specifications, max 5 MB)</label>
-        <input id="attachment" name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf,.doc,.docx,.xls,.xlsx" className="field" {...f("file")} />
+        <input id="attachment" name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.dwg,.dxf,.doc,.docx,.xls,.xlsx" className="field file:mr-4 file:rounded-full file:border-0 file:bg-forest file:px-4 file:py-1.5 file:text-xs file:font-semibold file:text-ivory" {...f("file")} />
         <Err k="file" />
       </div>
 
@@ -140,10 +140,10 @@ export default function QuoteForm({ products, initialProduct, initialMessage }: 
         <Err k="consent" />
       </div>
 
-      {errors.form && <p role="alert" className="border border-red-800 bg-red-50 p-3 text-sm text-red-900 sm:col-span-2">{errors.form}</p>}
+      {errors.form && <p role="alert" className="rounded-soft bg-red-50 p-4 text-sm text-red-900 sm:col-span-2">{errors.form}</p>}
 
       <div className="sm:col-span-2">
-        <button type="submit" disabled={status === "submitting"} className="btn btn-forest">
+        <button type="submit" disabled={status === "submitting"} className="btn btn-forest !px-8 !py-4">
           {status === "submitting" ? <><Loader2 size={16} className="animate-spin" aria-hidden /> Sending…</> : "Send enquiry"}
         </button>
       </div>

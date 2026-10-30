@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import { getSettings } from "@/lib/site";
 
@@ -31,30 +32,32 @@ export default async function Export() {
   return (
     <>
       <PageHero eyebrow="Export capabilities" title="From enquiry to shipment, coordinated." intro="How we handle overseas enquiries and orders." image="/home/export-shipping.webp" imageAlt="Crated machinery beside an open shipping container (illustrative image)" />
-      <section className="container-page py-20">
-        <ol className="grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-2 lg:grid-cols-3">
+      <section className="container-page section">
+        <ol className="grid gap-x-12 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
           {steps.map(([t, d], i) => (
-            <li key={t} className="reveal bg-ivory p-8">
-              <span className="font-serif text-4xl italic text-brass-700">{String(i + 1).padStart(2, "0")}</span>
-              <h2 className="mt-4 text-xl font-bold">{t}</h2>
-              <p className="mt-3 text-sm text-charcoal/75">{d}</p>
+            <li key={t} className="reveal" style={{ ["--d" as string]: `${((i % 3) * 0.08).toFixed(2)}s` }}>
+              <span className="font-serif text-5xl italic text-brass-700">{String(i + 1).padStart(2, "0")}</span>
+              <span aria-hidden className="mt-4 block h-px w-12 bg-brass" />
+              <h2 className="mt-5 text-subtitle font-semibold">{t}</h2>
+              <p className="mt-3 text-charcoal/70">{d}</p>
             </li>
           ))}
         </ol>
 
         {shown.length > 0 && (
-          <div className="mt-14 max-w-3xl">
-            <h2 className="text-2xl font-bold">Export terms</h2>
-            <dl className="mt-5 divide-y divide-forest/15 border-y border-forest/15">
+          <div className="reveal mt-24 grid gap-8 lg:grid-cols-12">
+            <h2 className="font-heading text-title font-semibold lg:col-span-4">Export terms</h2>
+            <dl className="lg:col-span-8">
               {shown.map(([k, v]) => (
-                <div key={k} className="grid gap-1 py-4 sm:grid-cols-3"><dt className="font-heading font-semibold text-forest">{k}</dt><dd className="whitespace-pre-line text-charcoal/80 sm:col-span-2">{v}</dd></div>
+                <div key={k} className="grid gap-1 border-t border-forest/10 py-5 first:border-t-0 first:pt-0 sm:grid-cols-3"><dt className="font-heading font-semibold text-forest">{k}</dt><dd className="whitespace-pre-line text-charcoal/75 sm:col-span-2">{v}</dd></div>
               ))}
             </dl>
           </div>
         )}
 
-        <div className="mt-12">
-          <Link href="/contact#quote" className="btn btn-forest">Start an export enquiry</Link>
+        <div className="reveal mt-20 flex flex-wrap items-center justify-between gap-6 rounded-panel bg-forest p-8 text-ivory lg:p-12">
+          <p className="max-w-xl font-heading text-subtitle font-semibold !text-ivory">Ready to start? <span className="font-serif font-normal italic text-brass">Send us your requirement.</span></p>
+          <Link href="/contact#quote" className="btn btn-brass">Start an export enquiry <ArrowRight size={16} aria-hidden /></Link>
         </div>
       </section>
     </>

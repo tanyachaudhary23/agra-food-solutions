@@ -100,61 +100,65 @@ export default function Catalogue({ products, categories }: { products: Product[
       type="button"
       aria-pressed={current === slug}
       onClick={() => setParam(key, slug)}
-      className={`border px-4 py-2 font-heading text-sm font-medium transition-colors ${current === slug ? "border-forest bg-forest text-ivory" : "border-forest/30 text-forest hover:border-forest"}`}
+      className={`shrink-0 rounded-full px-4 py-2 font-heading text-sm font-medium transition-all duration-300 ease-out-soft ${current === slug ? "bg-forest text-ivory shadow-soft" : "bg-sand text-forest hover:bg-forest/10"}`}
     >
       {name}
     </button>
   );
 
+  // Filter rows scroll sideways on small screens instead of wrapping into a tall block.
+  const row = "-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden";
+  const filterKey2 = `${active}|${activeIndustry}|${q}`;
+
   return (
     <div>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="relative w-full max-w-xl">
-          <label htmlFor="product-search" className="sr-only">Search products</label>
-          <Search size={18} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-forest/60" aria-hidden />
-          <input id="product-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products, parts or specifications" className="field pl-10" />
+          <div className="relative w-full max-w-xl">
+            <label htmlFor="product-search" className="sr-only">Search products</label>
+            <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-forest/60" aria-hidden />
+            <input id="product-search" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products, parts or specifications" className="field !rounded-full !py-3.5 pl-11" />
+          </div>
+          <CatalogueDownload className="btn btn-outline" />
         </div>
-        <CatalogueDownload />
-        </div>
-        <div>
-          <p className="eyebrow mb-3">Industry</p>
-          <div role="group" aria-label="Filter by industry" className="flex flex-wrap gap-2">
+        <div className="grid gap-6 lg:grid-cols-[8rem_1fr] lg:gap-x-8">
+          <p className="eyebrow lg:pt-2.5">Industry</p>
+          <div role="group" aria-label="Filter by industry" className={row}>
             {chip("industry", activeIndustry, "all", "All industries")}
             {industries.map(([name, , slug]) => chip("industry", activeIndustry, slug, name))}
           </div>
-        </div>
-        <div>
-          <p className="eyebrow mb-3">Category</p>
-          <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">
+          <p className="eyebrow lg:pt-2.5">Category</p>
+          <div role="group" aria-label="Filter by category" className={row}>
             {chip("category", active, "all", "All")}
             {categories.map((c) => chip("category", active, c.slug, c.name))}
           </div>
         </div>
       </div>
 
-      <p className="mt-8 text-sm text-charcoal/70" role="status" aria-live="polite">
+      <p className="mt-12 text-sm text-charcoal/60" role="status" aria-live="polite">
         {results.length} {results.length === 1 ? "product" : "products"}
       </p>
 
       {results.length === 0 ? (
-        <div className="mt-6 border border-dashed border-forest/30 bg-white p-10 text-center">
-          <h2 className="text-xl font-bold">No matching products</h2>
-          <p className="mt-2 text-charcoal/75">Can’t find what you need? We can source to your specification.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <div className="mt-6 rounded-panel bg-sand p-10 text-center lg:p-16">
+          <h2 className="font-heading text-subtitle font-semibold">No matching products</h2>
+          <p className="mx-auto mt-3 max-w-md text-charcoal/70">Can&rsquo;t find what you need? We can source to your specification.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button className="btn btn-outline" onClick={clearAll}>Clear filters</button>
             <a className="btn btn-forest" href={`/contact?message=${encodeURIComponent(q ? `I am looking for: ${q}` : "")}#quote`}>Send an enquiry</a>
           </div>
         </div>
       ) : (
-        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" onClickCapture={(e) => { if ((e.target as HTMLElement).closest("a")) { try { sessionStorage.setItem(STORE + "-back", "1"); } catch { /* ignore */ } } }}>
+        // Re-keyed on every filter change so the new results fade in rather than snapping
+        <div key={filterKey2} className="admin-enter mt-6 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
           {results.slice(0, shown).map((p, i) => <ProductCard key={p.id} product={p} priority={i < 4} />)}
         </div>
       )}
       {results.length > shown && (
-        <div className="mt-10 text-center">
-          <p className="text-sm text-charcoal/65">Showing {shown} of {results.length} products</p>
-          <button className="btn btn-outline mt-3" onClick={() => setShown(shown + PAGE)}>Show more products</button>
+        <div className="mt-16 text-center">
+          <p className="text-sm text-charcoal/60">Showing {shown} of {results.length} products</p>
+          <div className="mx-auto mt-3 h-1 w-48 overflow-hidden rounded-full bg-forest/10" aria-hidden><div className="h-full rounded-full bg-brass transition-[width] duration-500 ease-out-soft" style={{ width: `${Math.min(100, (shown / results.length) * 100)}%` }} /></div>
+          <button className="btn btn-forest mt-6 !px-8" onClick={() => setShown(shown + PAGE)}>Show more products</button>
         </div>
       )}
     </div>

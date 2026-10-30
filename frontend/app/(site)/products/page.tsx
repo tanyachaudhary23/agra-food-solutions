@@ -15,11 +15,11 @@ export default async function Products() {
   return (
     <>
       <PageHero eyebrow="Catalogue" title="Products." intro="Search by name or filter by category, then request a quotation for the parts you need." image="/home/hero-roller.webp" imageAlt="Precision-ground steel roller (illustrative image)" />
-      <section className="container-page py-14">
+      <section className="container-page pb-24 pt-14">
         {products === null ? (
           <Unavailable what="The catalogue" />
         ) : (
-          <Suspense fallback={<p role="status" className="text-sm">Loading catalogue…</p>}>
+          <Suspense fallback={<div role="status" className="skeleton h-12 w-full max-w-xl rounded-full" aria-label="Loading catalogue" />}>
             <Catalogue products={products} categories={categories} />
           </Suspense>
         )}
